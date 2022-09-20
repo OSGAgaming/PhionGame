@@ -1,0 +1,161 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "PhionGame/1.0.0": {
+        "dependencies": {
+          "Json.Net": "1.0.33",
+          "JsonNet.ContractResolvers": "2.0.0",
+          "MonoGame.Content.Builder.Task": "3.8.1.303",
+          "MonoGame.Framework.DesktopGL": "3.8.1.303",
+          "Newtonsoft.Json": "13.0.1",
+          "Nopipeline.Task": "2.2.0"
+        },
+        "runtime": {
+          "PhionGame.dll": {}
+        }
+      },
+      "Json.Net/1.0.33": {
+        "runtime": {
+          "lib/netstandard2.0/Json.Net.dll": {
+            "assemblyVersion": "1.0.33.1",
+            "fileVersion": "1.0.33.1"
+          }
+        }
+      },
+      "JsonNet.ContractResolvers/2.0.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1",
+          "System.Reflection.TypeExtensions": "4.5.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/JsonNet.ContractResolvers.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
+      "MonoGame.Content.Builder.Task/3.8.1.303": {},
+      "MonoGame.Framework.DesktopGL/3.8.1.303": {
+        "runtime": {
+          "lib/net6.0/MonoGame.Framework.dll": {
+            "assemblyVersion": "3.8.1.303",
+            "fileVersion": "3.8.1.303"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/linux-x64/native/libSDL2-2.0.so.0": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/linux-x64/native/libopenal.so.1": {
+            "rid": "linux-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx/native/libSDL2.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx/native/libopenal.1.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/SDL2.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "2.0.20.0"
+          },
+          "runtimes/win-x64/native/soft_oal.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/SDL2.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "2.0.20.0"
+          },
+          "runtimes/win-x86/native/soft_oal.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "Newtonsoft.Json/13.0.1": {
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.1.25517"
+          }
+        }
+      },
+      "Nopipeline.Task/2.2.0": {},
+      "System.Reflection.TypeExtensions/4.5.1": {}
+    }
+  },
+  "libraries": {
+    "PhionGame/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Json.Net/1.0.33": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-5tE+db6BqhRAvITIVBeRsQorLGshPExfm4FmMRvWWAfs4RxeTbFFj2PIEybwmMW0qR30HKkXDYhq0YkDK2Jtxw==",
+      "path": "json.net/1.0.33",
+      "hashPath": "json.net.1.0.33.nupkg.sha512"
+    },
+    "JsonNet.ContractResolvers/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-OqBmReOlo1VEY0ssIXrKOdyz+sPDmm0cjlb8pVg7RY4Xb6soUJ/kzVmwgMCFMrYnye/omqgefz3VPUWmsI5DNA==",
+      "path": "jsonnet.contractresolvers/2.0.0",
+      "hashPath": "jsonnet.contractresolvers.2.0.0.nupkg.sha512"
+    },
+    "MonoGame.Content.Builder.Task/3.8.1.303": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9Ilzzje62LhWElbPNEl7vh7XsRSbze+lvCJdZtTZUGu48FRgvYN6THURwIB9PN98EI33/Wnf6iuShNUtD7hL4Q==",
+      "path": "monogame.content.builder.task/3.8.1.303",
+      "hashPath": "monogame.content.builder.task.3.8.1.303.nupkg.sha512"
+    },
+    "MonoGame.Framework.DesktopGL/3.8.1.303": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eGYhqn0n1olk8MNYeE9EuBmoNNECN1T18rPMaQpkzsEQ0H3nVyFPXC+uCo78v5pi5juQpJ3PSFnSkjzZJ1U58A==",
+      "path": "monogame.framework.desktopgl/3.8.1.303",
+      "hashPath": "monogame.framework.desktopgl.3.8.1.303.nupkg.sha512"
+    },
+    "Newtonsoft.Json/13.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
+      "path": "newtonsoft.json/13.0.1",
+      "hashPath": "newtonsoft.json.13.0.1.nupkg.sha512"
+    },
+    "Nopipeline.Task/2.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-u06nYzGcXCBcnF7cRe8Xa0KxBxGx8grhujZmb3PUiMVbds8d/I6qJ+waGn0IeC7Tdwmt0P6l3v7MqdYog5rJQg==",
+      "path": "nopipeline.task/2.2.0",
+      "hashPath": "nopipeline.task.2.2.0.nupkg.sha512"
+    },
+    "System.Reflection.TypeExtensions/4.5.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-fO8GMEkgoKioJ7cglZbhcnBgkCWWn9poS3G2jevS+fuwW9xJXMx7/1kr7dkwOJfo0pWqxLFWVcxlOr+WeK5ipA==",
+      "path": "system.reflection.typeextensions/4.5.1",
+      "hashPath": "system.reflection.typeextensions.4.5.1.nupkg.sha512"
+    }
+  }
+}
