@@ -1,0 +1,5 @@
+C:\Users\Abubakar Tafida\Documents\GitHub\PhionGame\PhionGame\obj\Debug\net6.0\PhionGame.csproj.AssemblyReference.cache
+C:\Users\Abubakar Tafida\Documents\GitHub\PhionGame\PhionGame\obj\Debug\net6.0\PhionGame.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Abubakar Tafida\Documents\GitHub\PhionGame\PhionGame\obj\Debug\net6.0\PhionGame.AssemblyInfoInputs.cache
+C:\Users\Abubakar Tafida\Documents\GitHub\PhionGame\PhionGame\obj\Debug\net6.0\PhionGame.AssemblyInfo.cs
+C:\Users\Abubakar Tafida\Documents\GitHub\PhionGame\PhionGame\obj\Debug\net6.0\PhionGame.csproj.CoreCompileInputs.cache
