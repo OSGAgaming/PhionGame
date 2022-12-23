@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace QueefCord.Content.Graphics
 {
-    public class MiniMap : MapPass 
+    public class MiniMap : PostProcessingPass 
     {
         public override float Priority => 0;
 

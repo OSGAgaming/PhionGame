@@ -58,14 +58,29 @@ namespace QueefCord.Content.Scenes
 
             float GlobalScale = 1.6f;
 
-            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsSky", "Background", 1, 3, Vector2.Zero, GlobalScale, 0.5f));
-            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsFurthest", "Background", 0.8f, 3, Vector2.Zero, GlobalScale, 0.4f));
-            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsFar", "Background", 0.6f, 3, Vector2.Zero, GlobalScale, 0.3f));
-            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsMid", "Background", 0.4f, 3, Vector2.Zero, GlobalScale, 0.2f));
-            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsClose", "Background", 0.2f, 3, Vector2.Zero, GlobalScale, 0.1f));
-            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsClosest", "Background", 0.1f, 3, Vector2.Zero, GlobalScale, 0));
-        }
+            CrepsularRays Rays = new CrepsularRays();
+            ParalaxedSprite furthest = new ParalaxedSprite("Textures/Backgrounds/PlainsFurthest", "Default", new Vector2(0.8f, 0.95f), 3, Vector2.Zero, GlobalScale, 0.94f);
+            ParalaxedSprite far = new ParalaxedSprite("Textures/Backgrounds/PlainsFar", "Default", new Vector2(0.6f, 0.9f), 3, Vector2.Zero, GlobalScale, 0.93f);
+            ParalaxedSprite mid = new ParalaxedSprite("Textures/Backgrounds/PlainsMid", "Default", new Vector2(0.4f, 0.85f), 3, Vector2.Zero, GlobalScale, 0.92f);
+            ParalaxedSprite close = new ParalaxedSprite("Textures/Backgrounds/PlainsClose", "Default", new Vector2(0.2f, 0.8f), 3, Vector2.Zero, GlobalScale, 0.91f);
+            ParalaxedSprite closest = new ParalaxedSprite("Textures/Backgrounds/PlainsClosest", "Default", new Vector2(0.1f, 0.75f), 3, Vector2.Zero, GlobalScale, 0.9f);
 
+
+
+            AddEntity(Rays);
+
+            AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsSky", "Default", new Vector2(1,1), 3, Vector2.Zero, GlobalScale, 0.95f));
+            Rays.OcclusionMaps.Add(furthest);
+            AddEntity(furthest);
+            Rays.OcclusionMaps.Add(far);
+            AddEntity(far);
+            Rays.OcclusionMaps.Add(mid);
+            AddEntity(mid);
+            Rays.OcclusionMaps.Add(close);
+            AddEntity(close); 
+            Rays.OcclusionMaps.Add(closest);
+            AddEntity(closest);
+        }
 
         public override void RegisterSystems()
         {

@@ -30,6 +30,7 @@ namespace QueefCord.Core.Tiles
         public Color?[,] LightSources { get; set; }
 
         private float DiffusionRate { get; set; } = 0.7f;
+        private float AmbientIntensity { get; set; } = 0.7f;
 
         public void SetColor(int i, int j, Color c) => TileColor[i, j] = c;
 
@@ -71,7 +72,7 @@ namespace QueefCord.Core.Tiles
 
             for (int i = Math.Max(a - r, 0); i < Math.Min(a + r, w); i++)
             {
-                for (int j = Math.Max(b - r, 0); j < Math.Min(b + radius, h); j++)
+                for (int j = Math.Max(b - r, 0); j < Math.Min(b + r, h); j++)
                 {
                     if (Tiles[i, j] == null) LightSources[i, j] = Color.White;
                     else LightSources[i, j] = Color.Black;
@@ -83,7 +84,7 @@ namespace QueefCord.Core.Tiles
         {
             if (iteration < radius)
             {
-                SetColor(i, j, Color.White * intensity);
+                SetColor(i, j, Color.Lerp(Color.Black, Color.White, intensity));
 
                 for (int k = i - 1; k <= i + 1; k++)
                 {
@@ -189,7 +190,7 @@ namespace QueefCord.Core.Tiles
                          Math.Max(TL.X - 1, 0),
                          Math.Max(TL.Y - 1, 0),
                          Math.Min(TL.X + BR.X + 1, w),
-                         Math.Min(TL.Y + BR.Y + 1, h)), Color.White, 1f);
+                         Math.Min(TL.Y + BR.Y + 1, h)), Color.White, 0.1f);
 
                      for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, w); i++)
                          for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, h); j++)
@@ -197,7 +198,7 @@ namespace QueefCord.Core.Tiles
                              if (TileColor[i, j] != Color.White)
                              {
                                  Rectangle r = new Rectangle(i, j, 1, 1);
-                                 Utils.DrawBoxFill(r, TileColor[i, j], Solid ? 0.99f : 1f);
+                                 Utils.DrawBoxFill(r, TileColor[i, j], 0f);
                              }
                          }
                  });

@@ -32,6 +32,8 @@ namespace QueefCord.Core.Tiles
         public static Dictionary<int, string> TileTexturePaths = new Dictionary<int, string>();
         public static Dictionary<int, Texture2D> TileTextures = new Dictionary<int, Texture2D>();
         public static Dictionary<int, Texture2D> TileOutlines = new Dictionary<int, Texture2D>();
+        public static Dictionary<int, Texture2D> TileTop = new Dictionary<int, Texture2D>();
+
         public static Dictionary<int, Color> TileColors = new Dictionary<int, Color>();
 
         public static void AddTileSets()
@@ -45,8 +47,12 @@ namespace QueefCord.Core.Tiles
                 {
                     TileTexturePaths.Add(id, field.Name);
                     TileTextures.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}Loop").GetValue());
+
                     if (Assets<Texture2D>.Has($"Textures/Tiles/{TileTexturePaths[id]}Outline"))
                         TileOutlines.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}Outline").GetValue());
+                    if (Assets<Texture2D>.Has($"Textures/Tiles/{TileTexturePaths[id]}Top"))
+                        TileTop.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}Top").GetValue());
+
                     TileColors.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}").GetValue().GetDominantColor());
                 }
             }

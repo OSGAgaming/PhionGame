@@ -61,8 +61,9 @@ namespace QueefCord.Content.Entities
         {
             Tile?[,] tiles = manager.Tiles;
             int res = TileManager.frameResolution;
+            int padding = 1;
 
-            Rectangle r(int a, int b) => new Rectangle(a * res, b * res, res, res);
+            Rectangle r(int a, int b) => new Rectangle(a * (res + padding), b * (res + padding), res, res);
 
             return r(0, 5);
         }

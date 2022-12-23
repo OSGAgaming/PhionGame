@@ -23,6 +23,8 @@ namespace QueefCord.Content.Controls
             GameInput.Instance.RegisterControl("Tab", Keys.Tab, Buttons.Y);
             GameInput.Instance.RegisterControl("Right", Keys.Right, Buttons.LeftShoulder);
             GameInput.Instance.RegisterControl("Left", Keys.Left, Buttons.LeftShoulder);
+            GameInput.Instance.RegisterControl("Up", Keys.Up, Buttons.LeftShoulder);
+            GameInput.Instance.RegisterControl("Down", Keys.Down, Buttons.LeftShoulder);
             GameInput.Instance.RegisterControl("Alt", Keys.LeftAlt, Buttons.LeftShoulder);
             GameInput.Instance.RegisterControl("ScrollU", MouseInput.ScrollUp, Buttons.DPadUp);
             GameInput.Instance.RegisterControl("ScrollD", MouseInput.ScrollDown, Buttons.DPadDown);

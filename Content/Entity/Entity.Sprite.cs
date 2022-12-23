@@ -26,9 +26,9 @@ namespace QueefCord.Content.Entities
         private int Loop = 1;
         private Vector2 Offset;
         private float Scale;
-        private float Paralax;
+        private Vector2 Paralax;
         private float Depth;
-        public ParalaxedSprite(string Texture, string Layer, float Paralax, int Loop, Vector2 Offset, float Scale = 1, float depth = 0)
+        public ParalaxedSprite(string Texture, string Layer, Vector2 Paralax, int Loop, Vector2 Offset, float Scale = 1, float depth = 0)
         {
             this.Texture = Assets<Texture2D>.Get(Texture);
             this.Layer = Layer;
@@ -47,7 +47,12 @@ namespace QueefCord.Content.Entities
 
             for(int i = -Loop; i < Loop + 1; i++)
             {
-                sb.Draw(Texture, Offset + Vector2.UnitX * (Texture.Width * i * Scale + cam.Transform.Position.X * Paralax), Scale, Color.White, Depth);
+                float XParalax = (Texture.Width * i * Scale + cam.Transform.Position.X * Paralax.X);
+                float YParalax = (cam.Transform.Position.Y * Paralax.Y);
+
+                Vector2 pLax = new Vector2(XParalax, YParalax);
+
+                sb.Draw(Texture, Offset + Vector2.One * pLax, Scale, Color.White, Depth);
             }
         }
     }

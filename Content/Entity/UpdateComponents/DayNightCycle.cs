@@ -21,13 +21,14 @@ namespace QueefCord.Content.Entities
         public float Time;
 
         private readonly int MaxTimeInDay = 86400;
-        private float SpeedOfDay => 20;
+        private float SpeedOfDay => 00;
 
         public void Update(GameTime gameTime)
         {
             Time += SpeedOfDay;
 
             Time %= MaxTimeInDay;
+            Time = 10000;
 
             Assets<Effect>.Get("Effects/DayNightCycle").GetValue().Parameters["colorMult"].SetValue(GetColorMod(Time).ToVector4());
         }

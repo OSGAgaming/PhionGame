@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace QueefCord.Content.Graphics
 {
-    public class LightMap : MapPass 
+    public class LightMap : PostProcessingPass 
     {
         protected override string MapEffectName => "Effects/Lighting";
         public override float Priority => 1;
@@ -20,6 +20,6 @@ namespace QueefCord.Content.Graphics
             MapEffect?.CurrentTechnique.Passes[0].Apply();
         }
     }
-    public class LineOfSightMap : MapPass { public override float Priority => 0; }
+    public class LineOfSightMap : PostProcessingPass { public override float Priority => 0; }
 
 }

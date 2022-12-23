@@ -42,15 +42,12 @@ namespace QueefCord.Content.Entities
 
             foreach (Collideable2D c in player.Get<EntityCollision>().CollisionBoxes)
             {
-                Logger.NewText(c.CollisionInfo.DirectionMask);
-
                 if (c.Colliding && (c.CollisionInfo.DirectionMask & (byte)Core.Entities.Direction.Down) != 0)
                 {
                     collidingDown = true;
                     break;
                 }
             }
-
 
             if (GameInput.Instance["D"].IsDown())
                 player.Velocity.X += MovementSpeed;       

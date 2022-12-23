@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
 namespace QueefCord.Content.Entities
 {
     public struct EdgeCase

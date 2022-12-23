@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using QueefCord.Core.Helpers;
+using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace QueefCord.Core.Graphics
 {
@@ -32,6 +34,8 @@ namespace QueefCord.Core.Graphics
         public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
 
         public static RenderTarget2D RenderTarget { get; private set; }
+        public static RenderTarget2D NativeTarget { get; private set; }
+
 
         public static Game Instance { get; private set; }
 
@@ -60,6 +64,8 @@ namespace QueefCord.Core.Graphics
         public static void PrepareRenderer()
         {
             RenderTarget = new RenderTarget2D(Device, MaxResolution.X, MaxResolution.Y, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+            NativeTarget = new RenderTarget2D(Device, MaxResolution.X, MaxResolution.Y, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
+
             Spritebatch = new SpriteBatch(Device);
 
             RegisterLayers();
@@ -67,9 +73,8 @@ namespace QueefCord.Core.Graphics
 
         public static void RegisterLayers()
         {
-            LayerHost.RegisterLayer(new Layer(0, new EntityFocalCamera(), "Effects/DayNightCycle", default, default, SpriteSortMode.BackToFront, false), "Background");
-            LayerHost.RegisterLayer(new Layer(1, new EntityFocalCamera(), "Effects/DayNightCycle", default, default, SpriteSortMode.BackToFront, true), "Default");
-            LayerHost.RegisterLayer(new Layer(2, new CameraTransform()), "UI");
+            LayerHost.RegisterLayer(new Layer(0, new EntityFocalCamera(), "Effects/DayNightCycle", default, default, SpriteSortMode.BackToFront, true), "Default");
+            LayerHost.RegisterLayer(new Layer(1, new CameraTransform()), "UI");
         }
 
         public static void DrawScene(Scene scene)
@@ -78,9 +83,9 @@ namespace QueefCord.Core.Graphics
 
             Device.SetRenderTarget(null);
 
-            Spritebatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            Spritebatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
 
-            Spritebatch.Draw(RenderTarget, Destination, PresentationParameters.Bounds, Color.White);
+            Spritebatch.Draw(RenderTarget, Destination.MultSize(Vector2.One), PresentationParameters.Bounds, Color.White);
        
             Destination = PresentationParameters.Bounds;
 
@@ -91,10 +96,19 @@ namespace QueefCord.Core.Graphics
         {
             LayerHost.DrawLayersToTarget(scene, Spritebatch);
 
-            Device.SetRenderTarget(RenderTarget);
+            Device.SetRenderTarget(NativeTarget);
             Device.Clear(Color.Transparent);
 
             LayerHost.DrawLayers(Spritebatch);
+
+            Device.SetRenderTarget(RenderTarget);
+            Device.Clear(Color.Transparent);
+
+            Spritebatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+
+            Spritebatch.Draw(NativeTarget, MaxResolutionBounds.MultSize(Vector2.One), Color.White);
+
+            Spritebatch.End();
 
             Device.SetRenderTarget(null);
         }

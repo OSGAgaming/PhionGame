@@ -36,23 +36,15 @@ namespace QueefCord.Content.UI
                      m.DrawToMiniMap(sb);
                  });
             }
-            /*
-            Texture2D tex = LayerHost.GetLayer("Default").MapHost.Maps.Get("UpscaledTileLightingMap").MapTarget;
-
+            
             //Utils.DrawRectangle(new Rectangle(MiniMap.Position, tex.Bounds.Size));
-            sb.Draw(tex, new Rectangle(Point.Zero, new Point(300,300)), Color.White);
+            //sb.Draw(tex, new Rectangle(Point.Zero, new Point(300,300)), Color.White);
             //sb.Draw(tex2, new Rectangle(MiniMap.Position, tex2.Bounds.Size), Color.White);
-            */
-        }
-        protected override void OnUpdate()
-        {
             
         }
+        protected override void OnUpdate() { }
 
-        protected override void OnLoad()
-        {
-
-        }
+        protected override void OnLoad() { }
 
         internal override void OnDrawToScreenDirect() { }
     }

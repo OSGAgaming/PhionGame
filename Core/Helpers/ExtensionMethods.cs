@@ -114,6 +114,11 @@ namespace QueefCord.Core.Helpers
             return new Rectangle(r.Location, r.Size.Add(p));
         }
 
+        public static Rectangle MultSize(this Rectangle r, Vector2 p)
+        {
+            return new Rectangle(r.Location, r.Size.Dot(p));
+        }
+
         public static Rectangle Inf(this Rectangle R, int h, int v)
         {
             return new Rectangle(

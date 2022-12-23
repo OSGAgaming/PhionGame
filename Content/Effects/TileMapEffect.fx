@@ -33,11 +33,12 @@ float4 PixelShaderLight(float2 coords : TEXCOORD0) : COLOR0
 {
     float4 color = tex2D(s0, coords);
 
-    float4 tile = tex2D(TileSampler, float2(coords.x, coords.y));
+    float4 tile = tex2D(TileSampler, coords);
     float4 map = tex2D(MapSampler, coords);
     float4 light = tex2D(LightSampler, coords / screenScale);
 
-    return color + float4((map * tile).rgb * light.r, tile.a);
+    float4 tileLight = float4((map * tile).rgb * light.r, tile.a * map.a);
+    return color * (1 - tileLight.a) + tileLight;
 }
 technique Technique1
 {

@@ -117,7 +117,7 @@ namespace QueefCord.Content.Entities
         {
             Color color = Color.Lerp(Color.IndianRed, Color.White, 1 - Get<BaseNPCStats>().ImmunityFrames / 30f);
 
-            sb.Draw(PlayerTexture, Transform.Position, PlayerTexture.Bounds, color, 1 - Center.Y / 100000f);
+            sb.Draw(PlayerTexture, Transform.Position, PlayerTexture.Bounds, color, 0);
 
             Get<PlayerItemUsage>().Draw(sb);
         }

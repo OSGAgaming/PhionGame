@@ -55,6 +55,7 @@ namespace QueefCord.Core.Tiles
             TileColor = new Color[TileManager.width, TileManager.height];
             LightSources = new Color?[TileManager.width, TileManager.height];
             Outline = new byte[TileManager.width, TileManager.height];
+            Top = new byte[TileManager.width, TileManager.height];
 
             ResetLights();
 
@@ -185,13 +186,27 @@ namespace QueefCord.Core.Tiles
                      for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, h); j++)
                      {
                          Tile? tile = Tiles[i, j];
+                         bool IsActive(int a, int b)
+                         {
+                             if (i + a < 0 || j + b < 0) return false;
+
+                             return Tiles[i + a, j + b] != null;
+                         }
+
+                         if((IsActive(1,0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1)) && tile == null)
+                         {
+                             Rectangle r = new Rectangle(i * res, j * res, res, res);
+                             Rectangle s = FramingMethod?.Invoke(this, i, j) ?? Rectangle.Empty;
+
+                             sb.Draw(tex, r, s, Color.White, 0.1f);
+                         }
 
                          if (tile != null)
                          {
                              Rectangle r = new Rectangle(i * res, j * res, res, res);
                              Rectangle s = FramingMethod?.Invoke(this, i, j) ?? Rectangle.Empty;
 
-                             sb.Draw(tex, r, s, Color.White, Solid ? 0.99f : 1f);
+                             sb.Draw(tex, r, s, Color.White, 0.1f);
                          }
                      }
              });
@@ -224,7 +239,7 @@ namespace QueefCord.Core.Tiles
                              Rectangle r = new Rectangle(i * dRes, j * dRes, dRes, dRes);
                              Rectangle s = new Rectangle(i % loop * fRes, j % loop * fRes, fRes, fRes);
 
-                             sb.Draw(tex, r, s, Color.White, Solid ? 0.99f : 1f);
+                             sb.Draw(tex, r, s, Color.White, 0.075f);
                          }
                      }
              });
@@ -250,6 +265,7 @@ namespace QueefCord.Core.Tiles
             int b = (int)(p.Y / TileManager.drawResolution);
 
 
+
             if (TileManager.ActiveTileSet == Index && TileManager.PlaceMode)
             {
                 Rectangle drag = GameInput.Instance.WorldDragArea.Snap(res).AddSize(new Vector2(res));
@@ -261,6 +277,7 @@ namespace QueefCord.Core.Tiles
                     //make event
                     UpdateSunLighting(a,b, 8);
                     ConfigureOutline(a, b);
+                    Logger.NewText(new Vector2(a,b));
 
                     CollisionBoxes = GetCollision(Tiles);
                 }

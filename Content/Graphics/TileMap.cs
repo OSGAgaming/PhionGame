@@ -12,7 +12,7 @@ using QueefCord.Core.Entities;
 
 namespace QueefCord.Content.Graphics
 {
-    public class TileTextureMap : MapPass
+    public class TileTextureMap : PostProcessingPass
     {
         protected override string MapEffectName => "Effects/TileMapEffect";
         public override float Priority => 1;
@@ -24,9 +24,9 @@ namespace QueefCord.Content.Graphics
             MapEffect?.CurrentTechnique.Passes[0].Apply();
         }
     }
-    public class TileMap : MapPass { public override float Priority => 0; }
+    public class TileMap : PostProcessingPass { public override float Priority => 0; }
 
-    public class UpscaledTileLightingMap : MapPass
+    public class UpscaledTileLightingMap : PostProcessingPass
     {
         public override Matrix Matrix
         {
@@ -35,10 +35,9 @@ namespace QueefCord.Content.Graphics
                 int res = TileManager.drawResolution;
 
                 CameraTransform Camera = Parent.Parent.Camera;
-                Vector2 delta = Camera.Transform.Position - Camera.LastTransform.Position;
                 Vector2 remainder = new Vector2(
-                    (Camera.LastTransform.Position.X) % res,
-                    (Camera.LastTransform.Position.Y) % res);
+                    (Camera.Transform.Position.X) % res,
+                    (Camera.Transform.Position.Y) % res);
 
                 //if (remainder.X == 15) remainder.X = 0;
                 //if (remainder.Y == 15) remainder.Y = 0;
@@ -50,7 +49,7 @@ namespace QueefCord.Content.Graphics
         public override SamplerState SamplerState => SamplerState.LinearClamp;
     }
 
-    public class TileLightingMap : MapPass
+    public class TileLightingMap : PostProcessingPass
     {
         public override float Priority => 0;
         public override Matrix Matrix => Matrix.CreateTranslation(

@@ -11,16 +11,16 @@ namespace QueefCord.Core.Graphics
     internal delegate void LightTargetEvent();
     public class MapHost
     {
-        public Map Maps;
+        public PostProcessingHost Maps;
 
         public MapHost(ContentManager Content, Layer Parent)
         {
-            Maps = new Map();
+            Maps = new PostProcessingHost();
             Maps.Parent = Parent;
 
-            foreach (Type t in Utils.GetInheritedClasses(typeof(MapPass)))
+            foreach (Type t in Utils.GetInheritedClasses(typeof(PostProcessingPass)))
             {
-                MapPass? state = (MapPass?)Activator.CreateInstance(t);
+                PostProcessingPass? state = (PostProcessingPass?)Activator.CreateInstance(t);
 
                 if (state != null) Maps?.AddMap(t.Name, state, Parent);
             }

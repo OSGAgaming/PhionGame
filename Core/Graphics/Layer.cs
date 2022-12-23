@@ -21,7 +21,7 @@ namespace QueefCord.Core.Graphics
         public MapHost MapHost { get; set; }
 
         [JsonIgnore]
-        private RenderTarget2D Target { get; set; }
+        public RenderTarget2D Target { get; set; }
 
         public string EffectPath { get; private set; }
         public string ID { get; set; }

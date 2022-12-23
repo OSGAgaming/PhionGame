@@ -457,3 +457,47 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Player/PlayerTest.png
+
+#begin Effects/BrightPass.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/build:Effects/BrightPass.fx
+
+#begin Effects/LightSource.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/build:Effects/LightSource.fx
+
+#begin Effects/LightRays.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/build:Effects/LightRays.fx
+
+#begin Effects/SceneBlend.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/build:Effects/SceneBlend.fx
+
+#begin Textures/Maps/flare.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Maps/flare.png
+
+#begin Textures/Tiles/RockTileTop.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Tiles/RockTileTop.png
