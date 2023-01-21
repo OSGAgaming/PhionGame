@@ -50,7 +50,7 @@ namespace QueefCord.Content.Entities
             ImmunityFrames = MaxImmunityFrames;
         }
 
-        public void Update(in Entity entity, GameTime gameTime)
+        public void Update(in EntityCore entity, GameTime gameTime)
         {
             if (ImmunityFrames > 0) ImmunityFrames--;
 

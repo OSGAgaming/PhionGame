@@ -17,7 +17,7 @@ namespace QueefCord.Core.IO
         public override bool CanConvert(Type objectType) => (objectType == typeof(Tile?[,]));
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
+        {/*
             int w = TileManager.width;
             int h = TileManager.height;
             Tile?[,] tiles = (Tile?[,])value;
@@ -35,6 +35,7 @@ namespace QueefCord.Core.IO
                         serializer.Serialize(writer, tile);
                     }
                 }
+            */
         }
 
         public override bool CanRead => false;

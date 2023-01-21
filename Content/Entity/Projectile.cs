@@ -16,7 +16,7 @@ using System.Diagnostics;
 
 namespace QueefCord.Content.Entities
 {
-    public class Projectile : KinematicEntity2D
+    public class Projectile : Entity2D
     {
         public virtual int Damage { get; }
         public virtual int TimeAlive { get; }
@@ -24,12 +24,15 @@ namespace QueefCord.Content.Entities
 
         protected int TimeLeft;
 
+        public virtual void OnSpawn() { }
+
         public static void SpawnProjectile<T>() where T : Projectile, new() => SceneHolder.CurrentScene.AddEntity(new T());
 
         public static void SpawnProjectile(Projectile proj)
         {
-            SceneHolder.CurrentScene.AddEntity(proj);
             proj.AddMechanic(new EntityCollision(proj, proj.Size, true, true));
+            proj.OnSpawn();
+            SceneHolder.CurrentScene.AddEntity(proj);
         }
 
     }

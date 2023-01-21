@@ -15,11 +15,11 @@ namespace QueefCord.Content.Entities
 {
     public interface IEntityModifier : IDisposable
     {
-        public void Update(in Entity entity, GameTime gameTime);
+        public void Update(in EntityCore entity, GameTime gameTime);
     }
 
     public interface IRendereableEntityModifier : IEntityModifier
     {
-        public void Draw(in Entity entity, GameTime gameTime, SpriteBatch sb);
+        public void Draw(in EntityCore entity, GameTime gameTime, SpriteBatch sb);
     }
 }

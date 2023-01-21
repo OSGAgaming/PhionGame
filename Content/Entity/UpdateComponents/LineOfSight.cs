@@ -40,10 +40,10 @@ namespace QueefCord.Content.Entities
 
             List<Rectangle> rs = new List<Rectangle>();
 
-            foreach (TileSet tileSet in TileManager.Instance.TileSets.Values)
+            foreach (TileSetInfo tileSet in World.CurrentWorld.TileSets.Values)
             {
-                if (tileSet.Solid)
-                    rs = rs.Concat(tileSet.CollisionBoxes).ToList();
+                //if (tileSet.Solid)
+                //    rs = rs.Concat(tileSet.CollisionBoxes).ToList();
             }
 
             Point p1 = Point.Zero.ToVector2().ToDefaultScreen().ToPoint();

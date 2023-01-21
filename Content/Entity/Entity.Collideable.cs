@@ -41,13 +41,51 @@ namespace QueefCord.Content.Entities
             AddCollisionBox(new RectangleF(0, 0, size.X, size.Y), Static, Trigger);
         }
 
-        public void Update(in Entity entity, GameTime gameTime)
+        public void Update(in EntityCore entity, GameTime gameTime)
         {
             foreach (Collideable2D c in CollisionBoxes)
             {
                 c.Update(gameTime);
-                SceneHolder.CurrentScene.GetSystem<AABBCollisionSystem>().GenerateHitbox(c);
+                SceneHolder.CurrentScene.GetSystem<CollisionSystem>().GenerateKinematicHitbox(c);
             }
+        }
+
+        public bool IsColliding(params Direction[] mask)
+        {
+            bool result = false;
+
+            foreach (Collideable2D c in CollisionBoxes)
+            {
+                byte combinedMask = 0;
+                for(int i = 0; i < mask.Length; i++)
+                {
+                    combinedMask |= (byte)mask[i];
+                }
+
+                if (c.Colliding && (c.CollisionInfo.DirectionMask & combinedMask) != 0)
+                {
+                    result = true;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public bool IsColliding()
+        {
+            bool result = false;
+
+            foreach (Collideable2D c in CollisionBoxes)
+            {
+                if (c.Colliding)
+                {
+                    result = true;
+                    break;
+                }
+            }
+
+            return result;
         }
 
         public void Dispose()

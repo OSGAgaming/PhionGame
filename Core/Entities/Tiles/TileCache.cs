@@ -27,13 +27,12 @@ namespace QueefCord.Core.Tiles
         public const short RockTile = 1;
     }
 
-    public partial class TileManager : IUpdate, ISerializable
+    public partial class TileManager : IUpdate
     {
         public static Dictionary<int, string> TileTexturePaths = new Dictionary<int, string>();
         public static Dictionary<int, Texture2D> TileTextures = new Dictionary<int, Texture2D>();
         public static Dictionary<int, Texture2D> TileOutlines = new Dictionary<int, Texture2D>();
         public static Dictionary<int, Texture2D> TileTop = new Dictionary<int, Texture2D>();
-
         public static Dictionary<int, Color> TileColors = new Dictionary<int, Color>();
 
         public static void AddTileSets()

@@ -20,5 +20,14 @@ namespace QueefCord.Core.Tiles
     {
         public short id;
         public bool solid;
+        public bool Active;
+        public byte Outline;
+        public byte Top;
+    }
+
+    public struct Space
+    {
+        public Color TileColor;
+        public Color? LightSources;
     }
 }

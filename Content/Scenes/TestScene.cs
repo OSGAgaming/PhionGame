@@ -18,7 +18,6 @@ namespace QueefCord.Content.Scenes
         private Player Player;
         private readonly int testItemCount = 20;
         private Prop testProp;
-        private TileManager SceneTileManager;
 
         public TestScene()
         {
@@ -44,12 +43,6 @@ namespace QueefCord.Content.Scenes
             Crop.Transform.Position = new Vector2(200, 200);
             Crop.Size = new Vector2(16, 16);
 
-            SceneTileManager = new TileManager();
-
-            SceneTileManager.AddTileSet("ground", "GetGroundFrame");
-            SceneTileManager.AddTileSet("walls", "GetWallFrame", true);
-
-            AddEntity(SceneTileManager);
             AddEntity(new DayNightCycle());
             AddEntity(Player);
             AddEntity(testProp);
@@ -113,7 +106,7 @@ namespace QueefCord.Content.Scenes
 
         public override void RegisterSystems()
         {
-            AddSystem<AABBCollisionSystem>();
+            AddSystem<CollisionSystem>();
         }
         public override void Update(GameTime time)
         {

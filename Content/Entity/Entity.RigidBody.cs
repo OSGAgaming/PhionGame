@@ -18,22 +18,35 @@ namespace QueefCord.Content.Entities
 {
     public class RigidBody : IEntityModifier
     {
-        private float Gravity { get; set; }
-        private float Resistance { get; set; }
+        public float Gravity { get; set; }
+        public Vector2 Drag { get; set; }
+        public float Friction { get; set; }
 
         public Vector2 Velocity;
-        public RigidBody(float Gravity, float Resistance = 1)
+        public RigidBody(float Gravity, Vector2 Drag = default, float Friction = 1)
         {
             this.Gravity = Gravity;
-            this.Resistance = Resistance;
+            if (Drag == default) this.Drag = Vector2.One;
+            else this.Drag = Drag;
+
+            this.Friction = Friction;
         }
 
-        public void Update(in Entity entity, GameTime gameTime)
+        public void Update(in EntityCore entity, GameTime gameTime)
         {
             Velocity.Y += Gravity;
             entity.Transform.Position += Velocity;
 
-            Velocity *= Resistance;
+            if (entity.Has(out EntityCollision col))
+            {
+                if (col.IsColliding())
+                {
+                    Velocity *= Friction;
+                    return;
+                }
+            }
+
+            Velocity *= Drag;
         }
 
         public void Dispose()

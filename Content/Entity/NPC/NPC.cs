@@ -16,8 +16,10 @@ using System.Diagnostics;
 
 namespace QueefCord.Content.Entities
 {
-    public class NPC : KinematicEntity2D, IUpdate, IDraw
+    public class NPC : Entity2D, IUpdate, IDraw
     {
+        protected RigidBody rigidBody;
+
         public string Layer => "Default";
 
         public virtual int MaxHealth 
@@ -39,6 +41,10 @@ namespace QueefCord.Content.Entities
         public NPC()
         {
             AddMechanic(new BaseNPCStats(0));
+            AddMechanic(new RigidBody(0));
+
+            rigidBody = Get<RigidBody>();
+
             SetDefaults();
             AddMechanic(new EntityCollision(this, Size, true, true));
         }
@@ -58,7 +64,7 @@ namespace QueefCord.Content.Entities
                 if (storeable is Weapon weapon)
                 {
                     Vector2 NormalizedDist = Vector2.Normalize(Mouse.GetState().Position.ToVector2() - Player.LocalPlayer.Center);
-                    Velocity += NormalizedDist * weapon.KnockBack;
+                    rigidBody.Velocity += NormalizedDist * weapon.KnockBack;
 
                     Get<BaseNPCStats>().TakeDamage(weapon.Damage);
                 }

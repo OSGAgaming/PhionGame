@@ -3,11 +3,10 @@ using QueefCord.Content.Maths;
 using QueefCord.Content.UI;
 using QueefCord.Core.DataStructures;
 using QueefCord.Core.Entities;
-using QueefCord.Core.Entities.EntitySystems;
-using QueefCord.Core.Graphics;
 using QueefCord.Core.Helpers;
 using QueefCord.Core.Input;
 using QueefCord.Core.Interfaces;
+using QueefCord.Core.IO;
 using QueefCord.Core.Resources;
 using QueefCord.Core.Scenes;
 using QueefCord.Core.UI;
@@ -20,21 +19,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using static System.Net.WebRequestMethods;
-using static System.Net.Mime.MediaTypeNames;
+using System.Security.Cryptography;
+using QueefCord.Core.Graphics;
+using QueefCord.Core.Entities.EntitySystems;
 
 namespace QueefCord.Core.Tiles
 {
-
-    public partial class TileSet : IDraw, IMappable
+    public partial class TileManager : IUpdate
     {
-        private byte[,] Outline;
-        private byte[,] Top;
-
         public Rectangle ByteToFrame(byte n)
         {
-            Rectangle ManhattanToRect(int x, int y) => new Rectangle(x, y, 1, 1).Multiply(TileManager.frameResolution);
+            Rectangle ManhattanToRect(int x, int y) => new Rectangle(x, y, 1, 1).Multiply(frameResolution);
             //UpEdge
             switch (n)
             {
@@ -277,7 +272,7 @@ namespace QueefCord.Core.Tiles
 
         public Rectangle ByteToFrameTop(byte n)
         {
-            Rectangle ManhattanToRect(int x, int y) => new Rectangle(x, y, 1, 1).Multiply(TileManager.frameResolution);
+            Rectangle ManhattanToRect(int x, int y) => new Rectangle(x, y, 1, 1).Multiply(frameResolution);
             //Top
             switch (n)
             {
@@ -347,71 +342,68 @@ namespace QueefCord.Core.Tiles
             return Rectangle.Empty;
         }
 
-        public void RenderOutline(SpriteBatch sb)
+        public void RenderOutline(SpriteBatch sb, string ID)
         {
-            int w = TileManager.width;
-            int h = TileManager.height;
-            int res = TileManager.drawResolution;
+            int res = drawResolution;
 
-            Point TL = (LayerHost.GetLayer(Layer).Camera.Transform.Position / res).ToPoint();
+            Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / res).ToPoint();
             Point BR = (Renderer.BackBufferSize.ToVector2() / res).ToPoint();
 
-            LayerHost.GetLayer(Layer).MapHost.Maps.DrawToBatchedMap("TileTextureMap",
+            LayerHost.GetLayer(ParentWorld.Layer).MapHost.Maps.DrawToBatchedMap("TileTextureMap",
              (SpriteBatch sb) =>
              {
-                 for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, w); i++)
-                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, h); j++)
+                 for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X); i++)
+                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y); j++)
                      {
                          bool IsActive(int a, int b)
                          {
                              if (i + a < 0 || j + b < 0) return false;
 
-                             return Tiles[i + a, j + b] != null;
+                             return GetTile(i + a, j + b, ID).Active;
                          }
 
-                         Tile? tile = Tiles[i, j];
-                         if ((IsActive(1, 0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1)) && tile == null && Top[i, j] != 255
-                         && i == Math.Clamp(i, 1, w) && j == Math.Clamp(j, 1, h))
+                         Tile tile = GetTile(i, j, ID);
+                         if ((IsActive(1, 0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1)) && !tile.Active && GetTile(i, j, ID).Top != 255
+                         && i == Math.Clamp(i, 1, ParentWorld.TileBounds.X) && j == Math.Clamp(j, 1, ParentWorld.TileBounds.Y))
                          {
-                             Tile? tileR = Tiles[i + 1, j];
-                             Tile? tileL = Tiles[i - 1, j];
-                             Tile? tileU = Tiles[i, j - 1];
-                             Tile? tileD = Tiles[i, j + 1];
+
+                             Tile tileR = GetTile(i + 1, j, ID);
+                             Tile tileL = GetTile(i - 1, j, ID);
+                             Tile tileU = GetTile(i, j - 1, ID);
+                             Tile tileD = GetTile(i, j + 1, ID);
 
                              Texture2D texTop = null;
 
-                             if (tileR != null && TileManager.TileOutlines.ContainsKey(tileR.Value.id))
-                                 texTop = TileManager.TileTop[tileR.Value.id];
-                             if (tileL != null && TileManager.TileOutlines.ContainsKey(tileL.Value.id))
-                                 texTop = TileManager.TileTop[tileL.Value.id];
+                             if (tileR.Active && TileOutlines.ContainsKey(tileR.id))
+                                 texTop = TileTop[tileR.id];
+                             if (tileL.Active && TileOutlines.ContainsKey(tileL.id))
+                                 texTop = TileTop[tileL.id];
 
-                             if (tileU != null && TileManager.TileOutlines.ContainsKey(tileU.Value.id))
-                                 texTop = TileManager.TileTop[tileU.Value.id];
-                             if (tileD != null && TileManager.TileOutlines.ContainsKey(tileD.Value.id))
-                                 texTop = TileManager.TileTop[tileD.Value.id];
+                             if (tileU.Active && TileOutlines.ContainsKey(tileU.id))
+                                 texTop = TileTop[tileU.id];
+                             if (tileD.Active && TileOutlines.ContainsKey(tileD.id))
+                                 texTop = TileTop[tileD.id];
+
 
                              if (texTop == null) continue;
 
                              Rectangle r = new Rectangle(i * res, j * res, res, res);
-                             Rectangle s = FramingMethod?.Invoke(this, i, j) ?? Rectangle.Empty;
-
-                             sb.Draw(texTop, r, ByteToFrameTop(Top[i, j]), Color.White, 0.05f);
-
+                             sb.Draw(texTop, r, ByteToFrameTop(GetTile(i, j, ID).Top), Color.White, 0.05f);
                          }
 
-                         if (tile != null)
+                         if (tile.Active)
                          {
-                             if (!TileManager.TileOutlines.ContainsKey(tile.Value.id)) continue;
+                             if (!TileOutlines.ContainsKey(tile.id)) continue;
 
-                             Texture2D tex = TileManager.TileOutlines[tile.Value.id];
+                             Texture2D tex = TileOutlines[tile.id];
 
                              if (!IsActive(1, 0) || !IsActive(-1, 0) || !IsActive(0, 1) || !IsActive(0, -1)
                               || !IsActive(-1, -1) || !IsActive(-1, 1) || !IsActive(1, 1) || !IsActive(1, -1))
                              {
                                  Rectangle r = new Rectangle(i * res, j * res, res, res);
-                                 Rectangle s = ByteToFrame(Outline[i, j]);
+                                 Rectangle s = ByteToFrame(GetTile(i, j, ID).Outline);
 
-                                 if (Outline[i, j] != 0)
+                                 if (GetTile(i, j, ID).Outline != 0)
                                  {
                                      sb.Draw(tex, r, s, Color.White, 0.05f);
                                  }
@@ -421,12 +413,14 @@ namespace QueefCord.Core.Tiles
              });
         }
 
-        public void ConfigureTop(int x, int y)
+        public void ConfigureTop(int x, int y, string ID)
         {
-            int res = TileManager.drawResolution;
+            int res = drawResolution;
 
-            Point TL = (LayerHost.GetLayer(Layer).Camera.Transform.Position / res).ToPoint();
+            Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / res).ToPoint();
             Point BR = (Renderer.BackBufferSize.ToVector2() / res).ToPoint();
+
+            void SetTop(int x, int y, byte n) => this.SetTop(x, y, ID, n);
 
             for (int i = Math.Max(TL.X - 1, 0); i < x + 3; i++)
                 for (int j = Math.Max(TL.Y - 1, 0); j < y + 3; j++)
@@ -435,39 +429,39 @@ namespace QueefCord.Core.Tiles
                     {
                         if (i + a < 0 || j + b < 0) return false;
 
-                        return Tiles[i + a, j + b] != null;
+                        return GetTile(i + a, j + b, ID).Active;
                     }
 
-                    Tile? tile = Tiles[i, j];
+                    Tile tile = GetTile(i, j, ID);
 
-                    if (tile == null)
+                    if (!tile.Active)
                     {
                         if (IsActive(1, 0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1))
                         {
                             if ((j * j * 27 % 11 % 7) < 2)
                             {
-                                Top[i, j] = 255;
+                                SetTop(i, j, 255);
                                 continue;
                             }
 
                             if (IsActive(1, 0))
                             {
-                                Top[i, j] = (byte)(30 + (j * 17) % 4);
+                                SetTop(i, j, (byte)(30 + (j * 17) % 4));
                                 if (!IsActive(0, 1) && IsActive(1, 1) && (j * 17) % 7 < 1)
                                 {
-                                    Top[i, j] = 34;
-                                    Top[i, j + 1] = 35;
+                                    SetTop(i, j, 34);
+                                    SetTop(i, j + 1, 35);
                                     j++;
                                 }
                             }
 
                             if (IsActive(-1, 0))
                             {
-                                Top[i, j] = (byte)(20 + (j * 17) % 4);
+                                SetTop(i, j, (byte)(20 + (j * 17) % 4));
                                 if (!IsActive(0, 1) && IsActive(-1, 1) && (j * 27) % 7 < 1)
                                 {
-                                    Top[i, j] = 24;
-                                    Top[i, j + 1] = 25;
+                                    SetTop(i, j, 24);
+                                    SetTop(i, j + 1, 25);
                                     j++;
                                 }
                             }
@@ -482,39 +476,39 @@ namespace QueefCord.Core.Tiles
                     {
                         if (i + a < 0 || j + b < 0) return false;
 
-                        return Tiles[i + a, j + b] != null;
+                        return GetTile(i + a, j + b, ID).Active;
                     }
 
-                    Tile? tile = Tiles[i, j];
+                    Tile tile = GetTile(i, j, ID);
 
-                    if (tile == null)
+                    if (!tile.Active)
                     {
                         if (IsActive(1, 0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1))
                         {
                             if (((i + j) * 27 % 11 % 7) < 2)
                             {
-                                Top[i, j] = 255;
+                                SetTop(i, j, 255);
                                 continue;
                             }
 
                             if (IsActive(0, 1))
                             {
-                                Top[i, j] = (byte)((i * 17) % 4);
+                                SetTop(i, j, (byte)((i * 17) % 4));
                                 if (!IsActive(1, 0) && IsActive(1, 1) && (i * 17) % 7 < 1)
                                 {
-                                    Top[i, j] = 4;
-                                    Top[i + 1, j] = 5;
+                                    SetTop(i, j, 4);
+                                    SetTop(i + 1, j, 5);
                                     i++;
                                 }
                             }
 
                             if (IsActive(0, -1))
                             {
-                                Top[i, j] = (byte)(10 + (i * 17) % 4);
+                                SetTop(i, j, (byte)(10 + (i * 17) % 4));
                                 if (!IsActive(1, 0) && IsActive(1, -1) && (i * 27) % 7 < 1)
                                 {
-                                    Top[i, j] = 14;
-                                    Top[i + 1, j] = 15;
+                                    SetTop(i, j, 14);
+                                    SetTop(i + 1, j, 15);
                                     i++;
                                 }
                             }
@@ -523,26 +517,27 @@ namespace QueefCord.Core.Tiles
                 }
         }
 
-        public void ConfigureOutline(int x, int y)
+        public void ConfigureOutline(int x, int y, string ID)
         {
-            int res = TileManager.drawResolution;
+            int res = drawResolution;
 
-            Point TL = (LayerHost.GetLayer(Layer).Camera.Transform.Position / res).ToPoint();
+            Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / res).ToPoint();
             Point BR = (Renderer.BackBufferSize.ToVector2() / res).ToPoint();
 
-            ConfigureTop(x, y);
+            ConfigureTop(x, y, ID);
+            void SetOutline(int x, int y, byte n) => this.SetOutline(x, y, ID, n);
 
             for (int i = Math.Max(TL.X - 1, 0); i < x + 3; i++)
                 for (int j = Math.Max(TL.Y - 1, 0); j < y + 3; j++)
                 {
                     //Greedy Meshing
-                    Tile? tile = Tiles[i, j];
-                    if (tile != null)
+                    Tile tile = GetTile(i, j, ID);
+                    if (tile.Active)
                     {
                         bool IsActive(int a, int b)
                         {
                             if (i + a < 0 || j + b < 0) return false;
-                            return Tiles[i + a, j + b] != null;
+                            return GetTile(i + a, j + b, ID).Active;
                         }
 
                         if (!IsActive(1, 0) || !IsActive(-1, 0) || !IsActive(0, 1) || !IsActive(0, -1))
@@ -550,11 +545,11 @@ namespace QueefCord.Core.Tiles
                             if (IsActive(0, -1) && IsActive(0, 1) && !IsActive(1, 0) && !IsActive(-1, 0))
                             {
                                 int posMove = 0;
-                                Outline[i, j] = 206;
+                                SetOutline(i, j, 206);
                                 if (IsActive(0, 0) && IsActive(0, 2) && !IsActive(1, 1) && !IsActive(-1, 1))
                                 {
-                                    Outline[i, j] = (byte)(207 + j % 2);
-                                    Outline[i, j + 1] = (byte)(207 + (j + 1) % 2);
+                                    SetOutline(i, j, (byte)(207 + j % 2));
+                                    SetOutline(i, j + 1, (byte)(207 + (j + 1) % 2));
                                     posMove++;
 
                                     if (IsActive(0, 1) && IsActive(0, 3) && !IsActive(1, 2) && !IsActive(-1, 2))
@@ -563,17 +558,17 @@ namespace QueefCord.Core.Tiles
                                         switch (pseudoRandomJ)
                                         {
                                             case 0:
-                                                Outline[i, j] = (byte)(209 + j % 3);
-                                                Outline[i, j + 1] = (byte)(209 + (j + 1) % 3);
-                                                Outline[i, j + 2] = (byte)(209 + (j + 2) % 3);
+                                                SetOutline(i, j, (byte)(209 + j % 3));
+                                                SetOutline(i, j + 1, (byte)(209 + (j + 1) % 3));
+                                                SetOutline(i, j + 2, (byte)(209 + (j + 2) % 3));
                                                 posMove++;
                                                 break;
                                             case 1:
-                                                Outline[i, j] = (byte)(207 + j % 2);
-                                                Outline[i, j + 1] = (byte)(207 + (j + 1) % 2);
+                                                SetOutline(i, j, (byte)(207 + j % 2));
+                                                SetOutline(i, j + 1, (byte)(207 + (j + 1) % 2));
                                                 break;
                                             case 2:
-                                                Outline[i, j] = 206;
+                                                SetOutline(i, j, 206);
                                                 posMove--;
                                                 break;
                                         }
@@ -586,11 +581,11 @@ namespace QueefCord.Core.Tiles
                             if (IsActive(0, -1) && IsActive(0, 1) && IsActive(1, 0))
                             {
                                 int posMove = 0;
-                                Outline[i, j] = 7;
+                                SetOutline(i, j, 7);
                                 if (IsActive(0, 0) && IsActive(0, 2) && IsActive(1, 1) && !IsActive(-1, 1))
                                 {
-                                    Outline[i, j] = (byte)(81 + j % 2);
-                                    Outline[i, j + 1] = (byte)(81 + (j + 1) % 2);
+                                    SetOutline(i, j, (byte)(81 + j % 2));
+                                    SetOutline(i, j + 1, (byte)(81 + (j + 1) % 2));
                                     posMove++;
                                     if (IsActive(0, 1) && IsActive(0, 3) && IsActive(1, 2) && !IsActive(-1, 2))
                                     {
@@ -598,17 +593,17 @@ namespace QueefCord.Core.Tiles
                                         switch (pseudoRandomJ)
                                         {
                                             case 0:
-                                                Outline[i, j] = (byte)(91 + j % 3);
-                                                Outline[i, j + 1] = (byte)(91 + (j + 1) % 3);
-                                                Outline[i, j + 2] = (byte)(91 + (j + 2) % 3);
+                                                SetOutline(i, j, (byte)(91 + j % 3));
+                                                SetOutline(i, j + 1, (byte)(91 + (j + 1) % 3));
+                                                SetOutline(i, j + 2, (byte)(91 + (j + 2) % 3));
                                                 posMove++;
                                                 break;
                                             case 1:
-                                                Outline[i, j] = (byte)(81 + j % 2);
-                                                Outline[i, j + 1] = (byte)(81 + (j + 1) % 2);
+                                                SetOutline(i, j, (byte)(81 + j % 2));
+                                                SetOutline(i, j + 1, (byte)(81 + (j + 1) % 2));
                                                 break;
                                             case 2:
-                                                Outline[i, j] = 7;
+                                                SetOutline(i, j, 7);
                                                 posMove--;
                                                 break;
                                         }
@@ -620,11 +615,11 @@ namespace QueefCord.Core.Tiles
                             else if (IsActive(-1, 0) && IsActive(0, 1) && IsActive(0, -1))
                             {
                                 int posMove = 0;
-                                Outline[i, j] = 10;
+                                SetOutline(i, j, 10);
                                 if (IsActive(-1, 1) && IsActive(0, 2) && IsActive(0, 0) && !IsActive(1, 1))
                                 {
-                                    Outline[i, j] = (byte)(111 + j % 2);
-                                    Outline[i, j + 1] = (byte)(111 + (j + 1) % 2);
+                                    SetOutline(i, j, (byte)(111 + j % 2));
+                                    SetOutline(i, j + 1, (byte)(111 + (j + 1) % 2));
                                     posMove++;
                                     if (IsActive(-1, 2) && IsActive(0, 3) && IsActive(0, 1) && !IsActive(1, 2))
                                     {
@@ -632,17 +627,17 @@ namespace QueefCord.Core.Tiles
                                         switch (pseudoRandomJ)
                                         {
                                             case 0:
-                                                Outline[i, j] = (byte)(121 + j % 3);
-                                                Outline[i, j + 1] = (byte)(121 + (j + 1) % 3);
-                                                Outline[i, j + 2] = (byte)(121 + (j + 2) % 3);
+                                                SetOutline(i, j, (byte)(121 + j % 3));
+                                                SetOutline(i, j + 1, (byte)(121 + (j + 1) % 3));
+                                                SetOutline(i, j + 2, (byte)(121 + (j + 2) % 3));
                                                 posMove++;
                                                 break;
                                             case 1:
-                                                Outline[i, j] = (byte)(111 + j % 2);
-                                                Outline[i, j + 1] = (byte)(111 + (j + 1) % 2);
+                                                SetOutline(i, j, (byte)(111 + j % 2));
+                                                SetOutline(i, j + 1, (byte)(111 + (j + 1) % 2));
                                                 break;
                                             case 2:
-                                                Outline[i, j] = 10;
+                                                SetOutline(i, j, 10);
                                                 posMove--;
                                                 break;
                                         }
@@ -659,13 +654,13 @@ namespace QueefCord.Core.Tiles
                 for (int i = Math.Max(TL.X - 1, 0); i < x + 3; i++)
                 {
                     //Greedy Meshing
-                    Tile? tile = Tiles[i, j];
-                    if (tile != null)
+                    Tile tile = GetTile(i, j, ID);
+                    if (tile.Active)
                     {
                         bool IsActive(int a, int b)
                         {
                             if (i + a < 0 || j + b < 0) return false;
-                            return Tiles[i + a, j + b] != null;
+                            return GetTile(i + a, j + b, ID).Active;
                         }
 
                         if (!IsActive(1, 0) || !IsActive(-1, 0) || !IsActive(0, 1) || !IsActive(0, -1))
@@ -673,11 +668,11 @@ namespace QueefCord.Core.Tiles
                             if (!IsActive(0, -1) && !IsActive(0, 1) && IsActive(1, 0) && IsActive(-1, 0))
                             {
                                 int posMove = 0;
-                                Outline[i, j] = 200;
+                                SetOutline(i, j, 200);
                                 if (!IsActive(1, -1) && !IsActive(1, 1) && IsActive(2, 0) && IsActive(0, 0))
                                 {
-                                    Outline[i, j] = (byte)(201 + i % 2);
-                                    Outline[i + 1, j] = (byte)(201 + (i + 1) % 2);
+                                    SetOutline(i, j, (byte)(201 + i % 2));
+                                    SetOutline(i + 1, j, (byte)(201 + (i + 1) % 2));
                                     posMove++;
 
                                     if (!IsActive(2, -1) && !IsActive(2, 1) && IsActive(3, 0) && IsActive(1, 0))
@@ -686,17 +681,17 @@ namespace QueefCord.Core.Tiles
                                         switch (pseudoRandomJ)
                                         {
                                             case 0:
-                                                Outline[i, j] = (byte)(203 + i % 3);
-                                                Outline[i + 1, j] = (byte)(203 + (i + 1) % 3);
-                                                Outline[i + 2, j] = (byte)(203 + (i + 2) % 3);
+                                                SetOutline(i, j, (byte)(203 + i % 3));
+                                                SetOutline(i + 1, j, (byte)(203 + (i + 1) % 3));
+                                                SetOutline(i + 2, j, (byte)(203 + (i + 2) % 3));
                                                 posMove++;
                                                 break;
                                             case 1:
-                                                Outline[i, j] = (byte)(201 + i % 2);
-                                                Outline[i + 1, j] = (byte)(201 + (i + 1) % 2);
+                                                SetOutline(i, j, (byte)(201 + i % 2));
+                                                SetOutline(i + 1, j, (byte)(201 + (i + 1) % 2));
                                                 break;
                                             case 2:
-                                                Outline[i, j] = 200;
+                                                SetOutline(i, j, 200);
                                                 posMove--;
                                                 break;
                                         }
@@ -709,11 +704,11 @@ namespace QueefCord.Core.Tiles
                             if (IsActive(-1, 0) && IsActive(1, 0) && IsActive(0, 1))
                             {
                                 int posMove = 0;
-                                Outline[i, j] = 1;
+                                SetOutline(i, j, 1);
                                 if (IsActive(0, 0) && IsActive(2, 0) && IsActive(1, 1) && !IsActive(1, -1))
                                 {
-                                    Outline[i, j] = (byte)(21 + i % 2);
-                                    Outline[i + 1, j] = (byte)(21 + (i + 1) % 2);
+                                    SetOutline(i, j, (byte)(21 + i % 2));
+                                    SetOutline(i + 1, j, (byte)(21 + (i + 1) % 2));
                                     posMove++;
 
                                     if (IsActive(1, 0) && IsActive(3, 0) && IsActive(2, 1) && !IsActive(2, -1))
@@ -722,17 +717,17 @@ namespace QueefCord.Core.Tiles
                                         switch (pseudoRandomJ)
                                         {
                                             case 0:
-                                                Outline[i, j] = (byte)(31 + i % 3);
-                                                Outline[i + 1, j] = (byte)(31 + (i + 1) % 3);
-                                                Outline[i + 2, j] = (byte)(31 + (i + 2) % 3);
+                                                SetOutline(i, j, (byte)(31 + i % 3));
+                                                SetOutline(i + 1, j, (byte)(31 + (i + 1) % 3));
+                                                SetOutline(i + 2, j, (byte)(31 + (i + 2) % 3));
                                                 posMove++;
                                                 break;
                                             case 1:
-                                                Outline[i, j] = (byte)(21 + i % 2);
-                                                Outline[i + 1, j] = (byte)(21 + (i + 1) % 2);
+                                                SetOutline(i, j, (byte)(21 + i % 2));
+                                                SetOutline(i + 1, j, (byte)(21 + (i + 1) % 2));
                                                 break;
                                             case 2:
-                                                Outline[i, j] = 1;
+                                                SetOutline(i, j, 1);
                                                 posMove--;
                                                 break;
                                         }
@@ -745,11 +740,11 @@ namespace QueefCord.Core.Tiles
                             else if (IsActive(-1, 0) && IsActive(1, 0) && IsActive(0, -1))
                             {
                                 int posMove = 0;
-                                Outline[i, j] = 4;
+                                SetOutline(i, j, 4);
                                 if (IsActive(0, 0) && IsActive(2, 0) && IsActive(1, -1) && !IsActive(1, 1))
                                 {
-                                    Outline[i, j] = (byte)(51 + i % 2);
-                                    Outline[i + 1, j] = (byte)(51 + (i + 1) % 2);
+                                    SetOutline(i, j, (byte)(51 + i % 2));
+                                    SetOutline(i + 1, j, (byte)(51 + (i + 1) % 2));
                                     posMove++;
                                     if (IsActive(1, 0) && IsActive(3, 0) && IsActive(2, -1) && !IsActive(2, 1))
                                     {
@@ -757,17 +752,17 @@ namespace QueefCord.Core.Tiles
                                         switch (pseudoRandomJ)
                                         {
                                             case 0:
-                                                Outline[i, j] = (byte)(61 + i % 3);
-                                                Outline[i + 1, j] = (byte)(61 + (i + 1) % 3);
-                                                Outline[i + 2, j] = (byte)(61 + (i + 2) % 3);
+                                                SetOutline(i, j, (byte)(61 + i % 3));
+                                                SetOutline(i + 1, j, (byte)(61 + (i + 1) % 3));
+                                                SetOutline(i + 2, j, (byte)(61 + (i + 2) % 3));
                                                 posMove++;
                                                 break;
                                             case 1:
-                                                Outline[i, j] = (byte)(51 + i % 2);
-                                                Outline[i + 1, j] = (byte)(51 + (i + 1) % 2);
+                                                SetOutline(i, j, (byte)(51 + i % 2));
+                                                SetOutline(i + 1, j, (byte)(51 + (i + 1) % 2));
                                                 break;
                                             case 2:
-                                                Outline[i, j] = 4;
+                                                SetOutline(i, j, 4);
                                                 posMove--;
                                                 break;
                                         }
@@ -781,65 +776,65 @@ namespace QueefCord.Core.Tiles
                                 if (IsActive(1, 0) && IsActive(0, 1) && !IsActive(-1, 0) && !IsActive(0, -1))
                                 {
                                     if (IsActive(1, 1))
-                                        Outline[i, j] = 11;
+                                        SetOutline(i, j, 11);
                                     else
-                                        Outline[i, j] = 40;
+                                        SetOutline(i, j, 40);
                                 }
                                 else if (IsActive(-1, 0) && IsActive(0, 1) && !IsActive(1, 0) && !IsActive(0, -1))
                                 {
                                     if (IsActive(-1, 1))
-                                        Outline[i, j] = 12;
+                                        SetOutline(i, j, 12);
                                     else
-                                        Outline[i, j] = 41;
+                                        SetOutline(i, j, 41);
                                 }
                                 else if (IsActive(-1, 0) && IsActive(0, -1) && !IsActive(1, 0) && !IsActive(0, 1))
                                 {
                                     if (IsActive(-1, -1))
-                                        Outline[i, j] = 13;
+                                        SetOutline(i, j, 13);
                                     else
-                                        Outline[i, j] = 42;
+                                        SetOutline(i, j, 42);
                                 }
                                 else if (IsActive(1, 0) && IsActive(0, -1) && !IsActive(-1, 0) && !IsActive(0, 1))
                                 {
                                     if (IsActive(1, -1))
-                                        Outline[i, j] = 14;
+                                        SetOutline(i, j, 14);
                                     else
-                                        Outline[i, j] = 43;
+                                        SetOutline(i, j, 43);
                                 }
 
                                 else if (!IsActive(1, 0) && IsActive(0, 1) && !IsActive(-1, 0) && !IsActive(0, -1))
-                                    Outline[i, j] = 15;
+                                    SetOutline(i, j, 15);
                                 else if (!IsActive(-1, 0) && !IsActive(0, 1) && !IsActive(1, 0) && IsActive(0, -1))
-                                    Outline[i, j] = 16;
+                                    SetOutline(i, j, 16);
                                 else if (!IsActive(-1, 0) && !IsActive(0, -1) && IsActive(1, 0) && !IsActive(0, 1))
-                                    Outline[i, j] = 17;
+                                    SetOutline(i, j, 17);
                                 else if (!IsActive(1, 0) && !IsActive(0, -1) && IsActive(-1, 0) && !IsActive(0, 1))
-                                    Outline[i, j] = 18;
+                                    SetOutline(i, j, 18);
                                 else if (!IsActive(1, 0) && !IsActive(0, -1) && !IsActive(-1, 0) && !IsActive(0, 1))
-                                    Outline[i, j] = (byte)(19 + i % 2);
+                                    SetOutline(i, j, (byte)(19 + i % 2));
                             }
                             //MiscConfig1
 
                             if (IsActive(1, 0) && IsActive(0, 1) && !IsActive(-1, 0) && IsActive(0, -1)
                                   && IsActive(1, -1) && !IsActive(1, 1))
                             {
-                                Outline[i, j] = 44;
+                                SetOutline(i, j, 44);
                             }
                             else if (!IsActive(1, 0) && IsActive(0, 1) && IsActive(-1, 0) && IsActive(0, -1)
                                 && IsActive(-1, -1) && !IsActive(-1, 1))
 
                             {
-                                Outline[i, j] = 45;
+                                SetOutline(i, j, 45);
                             }
                             else if (IsActive(1, 0) && IsActive(0, 1) && !IsActive(-1, 0) && IsActive(0, -1)
                                  && !IsActive(1, -1) && IsActive(1, 1))
                             {
-                                Outline[i, j] = 46;
+                                SetOutline(i, j, 46);
                             }
                             else if (!IsActive(1, 0) && IsActive(0, 1) && IsActive(-1, 0) && IsActive(0, -1)
                                 && !IsActive(-1, -1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 47;
+                                SetOutline(i, j, 47);
                             }
 
 
@@ -848,23 +843,23 @@ namespace QueefCord.Core.Tiles
                             if (IsActive(1, 0) && IsActive(0, 1) && IsActive(-1, 0) && !IsActive(0, -1)
                                  && !IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 70;
+                                SetOutline(i, j, 70);
                             }
                             else if (IsActive(1, 0) && IsActive(0, 1) && IsActive(-1, 0) && !IsActive(0, -1)
                                  && IsActive(1, 1) && !IsActive(-1, 1))
 
                             {
-                                Outline[i, j] = 71;
+                                SetOutline(i, j, 71);
                             }
                             else if (IsActive(1, 0) && !IsActive(0, 1) && IsActive(-1, 0) && IsActive(0, -1)
                                 && IsActive(-1, -1) && !IsActive(1, -1))
                             {
-                                Outline[i, j] = 72;
+                                SetOutline(i, j, 72);
                             }
                             else if (IsActive(1, 0) && !IsActive(0, 1) && IsActive(-1, 0) && IsActive(0, -1)
                                 && !IsActive(-1, -1) && IsActive(1, -1))
                             {
-                                Outline[i, j] = 73;
+                                SetOutline(i, j, 73);
                             }
 
                             //MiscConfig6
@@ -872,22 +867,22 @@ namespace QueefCord.Core.Tiles
                             if (IsActive(1, 0) && IsActive(0, 1) && !IsActive(-1, 0) && IsActive(0, -1)
                                 && !IsActive(1, -1) && !IsActive(1, 1))
                             {
-                                Outline[i, j] = 86;
+                                SetOutline(i, j, 86);
                             }
                             else if (!IsActive(1, 0) && IsActive(0, 1) && IsActive(-1, 0) && IsActive(0, -1)
                                  && !IsActive(-1, -1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 87;
+                                SetOutline(i, j, 87);
                             }
                             else if (IsActive(1, 0) && !IsActive(0, 1) && IsActive(-1, 0) && IsActive(0, -1)
                                 && !IsActive(-1, -1) && !IsActive(1, -1))
                             {
-                                Outline[i, j] = 88;
+                                SetOutline(i, j, 88);
                             }
                             else if (IsActive(1, 0) && IsActive(0, 1) && IsActive(-1, 0) && !IsActive(0, -1)
                                 && !IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 89;
+                                SetOutline(i, j, 89);
                             }
 
                         }
@@ -895,66 +890,66 @@ namespace QueefCord.Core.Tiles
                         {
                             if (!IsActive(-1, -1) && !IsActive(1, -1) && IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 74;
+                                SetOutline(i, j, 74);
                             }
                             else if (!IsActive(-1, -1) && !IsActive(1, -1) && !IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 75;
+                                SetOutline(i, j, 75);
                             }
                             else if (!IsActive(-1, -1) && IsActive(1, -1) && !IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 76;
+                                SetOutline(i, j, 76);
                             }
                             else if (IsActive(-1, -1) && !IsActive(1, -1) && !IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 77;
+                                SetOutline(i, j, 77);
                             }
 
                             else if (!IsActive(-1, -1) && IsActive(1, -1) && IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 78;
+                                SetOutline(i, j, 78);
                             }
                             else if (IsActive(-1, -1) && !IsActive(1, -1) && IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 79;
+                                SetOutline(i, j, 79);
                             }
                             else if (IsActive(-1, -1) && IsActive(1, -1) && IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 80;
+                                SetOutline(i, j, 80);
                             }
                             else if (IsActive(-1, -1) && IsActive(1, -1) && !IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 101;
+                                SetOutline(i, j, 101);
                             }
 
                             else if (!IsActive(-1, -1) && IsActive(1, -1) && IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 102;
+                                SetOutline(i, j, 102);
                             }
                             else if (IsActive(-1, -1) && !IsActive(1, -1) && !IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 83;
+                                SetOutline(i, j, 83);
                             }
                             else if (!IsActive(-1, -1) && !IsActive(1, -1) && IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 84;
+                                SetOutline(i, j, 84);
                             }
                             else if (IsActive(-1, -1) && IsActive(1, -1) && !IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 85;
+                                SetOutline(i, j, 85);
                             }
                             else if (!IsActive(-1, -1) && !IsActive(1, -1) && !IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 90;
+                                SetOutline(i, j, 90);
                             }
 
                             else if (!IsActive(-1, -1) && IsActive(1, -1) && !IsActive(1, 1) && IsActive(-1, 1))
                             {
-                                Outline[i, j] = 103;
+                                SetOutline(i, j, 103);
                             }
                             else if (IsActive(-1, -1) && !IsActive(1, -1) && IsActive(1, 1) && !IsActive(-1, 1))
                             {
-                                Outline[i, j] = 104;
+                                SetOutline(i, j, 104);
                             }
                         }
                     }
@@ -962,4 +957,3 @@ namespace QueefCord.Core.Tiles
         }
     }
 }
-

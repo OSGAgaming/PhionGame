@@ -21,7 +21,7 @@ using System.Linq;
 
 namespace QueefCord.Content.Entities
 {
-    public class Player : KinematicEntity2D, IUpdate, IDraw, IMappable
+    public class Player : Entity2D, IUpdate, IDraw, IMappable
     {
         public string Layer => "Default";
         public SlotInfo[] Items => BagItems.Concat(HotbarItems).ToArray();
@@ -36,28 +36,29 @@ namespace QueefCord.Content.Entities
         public int InventorySpace = 25;
         public int HotbarSpace = 5;
         public int CraftSpace = 4;
+        public RigidBody rigidBody;
 
         private Texture2D PlayerTexture;
         public Player()
         {
             PlayerTexture = Assets<Texture2D>.Get("Textures/Player/PlayerTest");
 
-            AddMechanic(new PlayerMovement(0.2f, 6));
+            AddMechanic(new PlayerMovement(0.3f, 8));
             AddMechanic(new PlayerItemUsage());
             AddMechanic(new BaseNPCStats(100, 20, 5));
             AddMechanic(new PlayerAnimation(8, 24, 48, 48, 5));
-            AddMechanic(new RigidBody(0.13f, 0.98f));
+            AddMechanic(new RigidBody(0.3f, new Vector2(0.85f, 0.94f),0.87f));
             AddMechanic(new EntityCollision(this));
 
             Get<EntityCollision>().AddCollisionBox(PlayerTexture.Bounds);
 
-            Friction = Vector2.One * 0.9f;
             Size = new Vector2(48, 48);
             Trim = new Point(-19, -16);
 
             BagItems = new SlotInfo[InventorySpace];
             HotbarItems = new SlotInfo[HotbarSpace];
             CraftItems = new SlotInfo[CraftSpace];
+            rigidBody = Get<RigidBody>();
 
             LocalPlayer = this;
         }
@@ -115,9 +116,7 @@ namespace QueefCord.Content.Entities
 
         public void Draw(SpriteBatch sb)
         {
-            Color color = Color.Lerp(Color.IndianRed, Color.White, 1 - Get<BaseNPCStats>().ImmunityFrames / 30f);
-
-            sb.Draw(PlayerTexture, Transform.Position, PlayerTexture.Bounds, color, 0);
+            sb.Draw(PlayerTexture, Transform.Position, PlayerTexture.Bounds, Color.White, 0);
 
             Get<PlayerItemUsage>().Draw(sb);
         }

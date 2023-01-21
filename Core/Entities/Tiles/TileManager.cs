@@ -19,58 +19,49 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using QueefCord.Core.Graphics;
+using QueefCord.Core.Entities.EntitySystems;
 
 namespace QueefCord.Core.Tiles
 {
-    public partial class TileManager : IUpdate, ISerializable
+    public partial class TileManager : EntityCore, IDraw, IMappable
     {
         public static TileManager Instance;
-        public Dictionary<string, TileSet> TileSets = new Dictionary<string, TileSet>();
+        public World ParentWorld;
 
-        internal const int width = 1000;
-        internal const int height = 1000;
-
-        public static int drawResolution = 16;
-        public static int frameResolution = 16;
+        public const int drawResolution = 16;
+        public const int frameResolution = 16;
 
         public static int ActiveTileSet = 0;
         public static short ActiveAtlas = 0;
 
         public static bool PlaceMode;
 
-        public TileManager()
+        public string ID => ParentWorld.TileSets.ElementAt(ActiveTileSet).Key;
+
+        public string Layer => "Default";
+
+        public TileManager(World Parent)
         {
             AddTileSets();
             Instance = this;
+            ParentWorld = Parent;
+            CollisionBoxes = new Dictionary<Point, IEnumerable<Rectangle>>();
+
+            ResetLights();
         }
 
-        public void AddTileSet(string id, string FramingMethod, bool solid = false)
+        public override void OnUpdate(GameTime gameTime)
         {
-            TileSet tileSet = new TileSet(FramingMethod);
-
-            tileSet.Index = TileSets.Count;
-            tileSet.Solid = solid;
-            tileSet.ID = id;
-
-            TileSets.Add(id, tileSet);
-        }
-        
-        public void Update(GameTime gameTime)
-        {
-            foreach (TileSet set in TileSets.Values)
-            {
-                if (!SceneHolder.CurrentScene.DistinctElements.Contains(set))
-                    SceneHolder.CurrentScene.AddEntity(set);
-            }
-
             if (PlaceMode)
             {
                 if (GameInput.Instance["Tab"].IsJustPressed())
                 {
                     ActiveTileSet++;
-                    ActiveTileSet %= TileSets.Count;
+                    ActiveTileSet %= ParentWorld.TileSets.Count;
 
-                    Logger.NewText("TileSet switched to: " + TileSets.Keys.ToArray()[ActiveTileSet]);
+                    Logger.NewText("TileSet switched to: " + ID);
                 }
 
                 if (GameInput.Instance["L"].IsJustPressed())
@@ -83,38 +74,137 @@ namespace QueefCord.Core.Tiles
             if (GameInput.Instance["Q"].IsJustPressed())
             {
                 PlaceMode = !PlaceMode;
-                Logger.NewText("Place mode is " + (PlaceMode ? "on" : "off"));
+                Logger.NewText(PlaceMode);
             }
-
         }
 
-        public void Save(BinaryWriter bw)
+        public void Draw(SpriteBatch sb)
         {
-            bw.Write(width);
-            bw.Write(height);
+            Vector2 p = Utils.DefaultMouseWorld.Snap(drawResolution);
 
-            bw.Write(TileSets.Count);
+            int res = drawResolution;
 
-            foreach (KeyValuePair<string, TileSet> tileset in TileSets)
-                tileset.Value.Save(bw);
-        }
+            int a = (int)(p.X / drawResolution);
+            int b = (int)(p.Y / drawResolution);
 
-        public IComponent Load(BinaryReader br)
-        {
-            int width = br.ReadInt32();
-            int height = br.ReadInt32();
+            Rectangle drag = GameInput.Instance.WorldDragArea.Snap(res).AddSize(new Vector2(res));
+            Rectangle tileDrag = drag.Divide(drawResolution);
 
-            int setCount = br.ReadInt32();
-
-            TileManager tm = new TileManager();
-
-            for (int i = 0; i < setCount; i++)
+            if (PlaceMode)
             {
-                TileSet ts = TileSet.Load(br);
-                tm.TileSets.Add(ts.ID, ts);
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    AddTile(a, b, ID, ActiveAtlas);
+
+                    //make event
+                    UpdateSunLighting(a, b, LightIntensity, ID);
+                    ConfigureOutline(a, b, ID);
+
+                    CollisionBoxes = UpdateChunkOverBounds(ID, tileDrag);
+                }
+
+                if (!GameInput.Instance.IsRightClicking)
+                    Utils.DrawRectangle(p, drawResolution, drawResolution, Color.Yellow, 1f);
+                else
+                    Utils.DrawRectangle(drag, Color.Yellow, 1f);
+
+                if (GameInput.Instance.JustReleaseRight)
+                {
+                    for (int j = tileDrag.X; j < tileDrag.Right; j++)
+                    {
+                        for (int k = tileDrag.Y; k < tileDrag.Bottom; k++)
+                        {
+                            AddTile(j, k, ID, ActiveAtlas);
+                        }
+                    }
+
+                    UpdateSunLighting(LightIntensity, ID, tileDrag);
+                    ConfigureOutline(a, b, ID);
+
+                    CollisionBoxes = UpdateChunkOverBounds(ID, tileDrag);
+                }
             }
 
-            return tm;
+            ApplyLighting();
+
+            foreach (TileSetInfo set in ParentWorld.TileSets.Values)
+            {
+                RenderTiles(set.ID);
+                RenderTileMaps(sb, set.ID);
+                RenderOutline(sb, set.ID);
+                DrawToMiniMap(set.ID);
+
+                foreach (var r in CollisionBoxes.Values)
+                {
+                    foreach (Rectangle rect in r)
+                    {
+                        SceneHolder.CurrentScene.GetSystem<CollisionSystem>().GenerateStaticHitbox(new Collideable2D(null, rect, set.Solid));
+                    }
+                }
+            }
+        }
+
+        //Utils
+        public Chunk GetChunk(int x, int y) => ParentWorld.ActiveChunks[new Point(x / ParentWorld.ChunkSize.X, y / ParentWorld.ChunkSize.Y)];
+
+        public Tile GetTile(int x, int y, string set) => GetChunk(x, y).TileSets[set].Tiles[x % ParentWorld.ChunkSize.X, y % ParentWorld.ChunkSize.Y];
+
+        public Tile SetTile(int x, int y, string set, Tile tile) => GetChunk(x, y).TileSets[set].Tiles[x % ParentWorld.ChunkSize.X, y % ParentWorld.ChunkSize.Y] = tile;
+
+        public Tile SetOutline(int x, int y, string set, byte n)
+        {
+            Tile result = GetTile(x, y, set);
+            result.Outline = n;
+
+            SetTile(x, y, set, result);
+
+            return result;
+        }
+
+        public Tile SetTop(int x, int y, string set, byte n)
+        {
+            Tile result = GetTile(x, y, set);
+            result.Top = n;
+
+            SetTile(x, y, set, result);
+
+            return result;
+        }
+
+        public Space GetSpace(int x, int y) => GetChunk(x, y).Spaces[x % ParentWorld.ChunkSize.X, y % ParentWorld.ChunkSize.Y];
+
+        public Space SetSpace(int x, int y, Space space) => GetChunk(x, y).Spaces[x % ParentWorld.ChunkSize.X, y % ParentWorld.ChunkSize.Y] = space;
+
+        public Space SetTileColor(int x, int y, Color c)
+        {
+            Space result = GetSpace(x, y);
+            result.TileColor = c;
+
+            SetSpace(x, y, result);
+
+            return result;
+        }
+
+        public Space SetLightColor(int x, int y, Color c)
+        {
+            Space result = GetSpace(x, y);
+            result.LightSources = c;
+
+            SetSpace(x, y, result);
+
+            return result;
+        }
+
+        public void AddTile(int i, int j, string ID, short id)
+        {
+            if (i < 0 || j < 0) return;
+            SetTile(i, j, ID,
+            new Tile()
+            {
+                solid = true,
+                id = id,
+                Active = true
+            });
         }
     }
 }

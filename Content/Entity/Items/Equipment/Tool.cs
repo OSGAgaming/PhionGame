@@ -54,7 +54,7 @@ namespace QueefCord.Content.Entities
                 Collideable2D toolHitbox = new Collideable2D(null, new RectangleF(Pos - new Vector2(Size) / 2, new Vector2(Size)));
                 toolHitbox.id = HitboxID;
 
-                SceneHolder.CurrentScene.GetSystem<AABBCollisionSystem>().GenerateHitbox(toolHitbox);
+                SceneHolder.CurrentScene.GetSystem<CollisionSystem>().GenerateKinematicHitbox(toolHitbox);
             }
         }
 

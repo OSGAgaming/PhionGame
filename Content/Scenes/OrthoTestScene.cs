@@ -19,16 +19,16 @@ namespace QueefCord.Content.Scenes
 {
     public class OrthoTestScene : Scene
     {
+        private World World;
+
         private Player Player;
-        private readonly int testItemCount = 20;
         private Prop testProp;
-        private TileManager SceneTileManager;
 
         public OrthoTestScene()
         {
+            World = new World(new Point(75,75),new Point(3), new TileSetInfo("TileFrame", "ground", true));
             Player = new Player();
             Player.Transform.Position = new Vector2(100, 0);
-
             AddEntity(UIScreenManager.Instance);
         }
 
@@ -39,11 +39,8 @@ namespace QueefCord.Content.Scenes
             testProp = new Prop("Rock", "Default");
             testProp.Transform.Position = new Vector2(100, 100);
             testProp.Size = new Vector2(20, 20);
-            SceneTileManager = new TileManager();
 
-            SceneTileManager.AddTileSet("ground", "TileFrame", true);
-
-            AddEntity(SceneTileManager);
+            AddEntity(World);
             AddEntity(new DayNightCycle());
             AddEntity(Player);
             AddEntity(testProp);
@@ -66,7 +63,6 @@ namespace QueefCord.Content.Scenes
             ParalaxedSprite closest = new ParalaxedSprite("Textures/Backgrounds/PlainsClosest", "Default", new Vector2(0.1f, 0.75f), 3, Vector2.Zero, GlobalScale, 0.9f);
 
 
-
             AddEntity(Rays);
 
             AddEntity(new ParalaxedSprite("Textures/Backgrounds/PlainsSky", "Default", new Vector2(1,1), 3, Vector2.Zero, GlobalScale, 0.95f));
@@ -84,7 +80,7 @@ namespace QueefCord.Content.Scenes
 
         public override void RegisterSystems()
         {
-            AddSystem<AABBCollisionSystem>();
+            AddSystem<CollisionSystem>();
         }
         public override void Update(GameTime time)
         {

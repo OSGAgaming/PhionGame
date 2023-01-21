@@ -35,7 +35,7 @@ namespace QueefCord.Content.Entities
             }
         }
 
-        public void Update(in Entity entity, GameTime gameTime)
+        public void Update(in EntityCore entity, GameTime gameTime)
         {
             IStoreable storeable = UIScreenManager.Instance.GetScreen<Inventory>().ActiveHotbarItem;
 

@@ -45,7 +45,7 @@ namespace QueefCord.Content.Entities
             Player player = entity as Player;
 
             //TODO: Not Hardcode
-            float mag = ((entity as KinematicEntity2D).Velocity).Length();
+            float mag = player.rigidBody.Velocity.Length();
             int speed = AnimationSpeed + 3 - (int)(mag * 3);
             speed = Math.Max(3, speed);
 
@@ -126,12 +126,12 @@ namespace QueefCord.Content.Entities
             FrameX = 0;
         }
 
-        public override void Update(in Entity entity, GameTime gameTime)
+        public override void Update(in EntityCore entity, GameTime gameTime)
         {
             Player player = entity as Player;
 
             if (PlayerAnimationState == PlayerState.Running)
-                Direction = CalculateDirection(player.Velocity);
+                Direction = CalculateDirection(player.rigidBody.Velocity);
 
             switch (PlayerAnimationState)
             {

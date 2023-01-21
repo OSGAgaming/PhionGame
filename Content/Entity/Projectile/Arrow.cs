@@ -23,9 +23,17 @@ namespace QueefCord.Content.Entities
         public override int TimeAlive => 120;
         public string Layer => "Default";
 
+        public RigidBody rigidBody;
+
+        public override void OnSpawn()
+        {
+            AddMechanic(new RigidBody(0));
+            rigidBody = Get<RigidBody>();
+        }
+
         public void Draw(SpriteBatch sb)
         {
-            float rot = Velocity.ToRotation();
+            float rot = rigidBody.Velocity.ToRotation();
 
             sb.Draw(Assets<Texture2D>.Get("Textures/Projectiles/Arrow"), Center, Color.White, rot);
         }
@@ -33,7 +41,7 @@ namespace QueefCord.Content.Entities
         {
             TimeLeft++;
 
-            if(TimeLeft >= TimeAlive) 
+            if (TimeLeft >= TimeAlive)
                 SceneHolder.CurrentScene.RemoveEntity(this);
         }
         public override void OnCollide(Entity2D entity)
@@ -41,7 +49,7 @@ namespace QueefCord.Content.Entities
             if (entity is NPC n)
             {
                 Vector2 lookAt = Vector2.Normalize(entity.Center - Center);
-                n.Velocity += lookAt * KnockBack; 
+                n.Get<RigidBody>().Velocity += lookAt * KnockBack;
 
                 entity.Get<BaseNPCStats>().TakeDamage(Damage);
                 SceneHolder.CurrentScene.RemoveEntity(this);

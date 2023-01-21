@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace QueefCord.Core.Entities
 {
     public enum Direction
-    { 
+    {
         None,
         Up,
         Right,
@@ -66,7 +66,15 @@ namespace QueefCord.Core.Entities
 
             this.Static = Static;
             this.Trigger = Trigger;
+
+            AddMechanic(new ChunkAllocator(this, Static));
         }
+
+        public void Dispose()
+        {
+            Get<ChunkAllocator>().Dispose();
+        }
+
         public override bool Compare(Entity2D col)
         {
             if (col is Collideable2D c)
@@ -97,7 +105,7 @@ namespace QueefCord.Core.Entities
 
             Vector2 vel = BindedEntity.LastTransform.Position - BindedEntity.Transform.Position;
 
-            RectangleF ALast = CollisionFrame.AddPos(vel * 2);
+            RectangleF ALast = CollisionFrame.AddPos(vel);
 
             Vector2 d = Vector2.Zero;
 
@@ -136,19 +144,19 @@ namespace QueefCord.Core.Entities
                 {
                     d = new Vector2(0, B.bottom - A.y);
                     CollisionInfo = CollisionInfo.AddDirection(Direction.Up);
+
                     SetVelY0();
                 }
                 if (ALast.bottom < B.Center.Y)
                 {
                     d = new Vector2(0, B.y - A.bottom);
-
                     CollisionInfo = CollisionInfo.AddDirection(Direction.Down);
 
                     SetVelY0();
                 }
             }
 
-            if (BindedEntity is KinematicEntity2D && d != Vector2.Zero) Colliding = true;
+            if (BindedEntity.Has<RigidBody>(out _) && d != Vector2.Zero) Colliding = true;
             else Colliding = false;
 
             BindedEntity.Transform.Position += d;

@@ -11,17 +11,25 @@ using QueefCord.Content.Entities;
 
 namespace QueefCord.Core.Entities.EntitySystems
 {
-    public class AABBCollisionSystem : EntitySystem<Collideable2D>
+    public class CollisionSystem : EntitySystem<Collideable2D>
     {
-        public List<Collideable2D> RuntimeHitboxes = new List<Collideable2D>();
+        public HashSet<Collideable2D> StaticRuntimeHitboxes = new HashSet<Collideable2D>();
+        public HashSet<Collideable2D> KinematicRuntimeHitboxes = new HashSet<Collideable2D>();
+
         public List<Collideable2D> AllHitboxes = new List<Collideable2D>();
 
-        public void GenerateHitbox(Collideable2D e) => RuntimeHitboxes.Add(e);
+        public void GenerateStaticHitbox(Collideable2D e)
+        {
+            StaticRuntimeHitboxes.Add(e);
+        }
+        public void GenerateKinematicHitbox(Collideable2D e) => KinematicRuntimeHitboxes.Add(e);
 
         public override void Update(GameTime gameTime)
         {
             List<Collideable2D> Concat = new List<Collideable2D>(Entities);
-            Concat.AddRange(RuntimeHitboxes);
+
+            Concat.AddRange(StaticRuntimeHitboxes);
+            Concat.AddRange(KinematicRuntimeHitboxes);
 
             foreach (Collideable2D e in AllHitboxes.ToArray())
             {
@@ -31,7 +39,7 @@ namespace QueefCord.Core.Entities.EntitySystems
 
             //for now n^2 cause too lazy for octree rn
             //just wanna test
-            foreach (Collideable2D e in Concat.ToArray())
+            foreach (Collideable2D e in KinematicRuntimeHitboxes)
             {
                 foreach (Collideable2D e2 in Concat.ToArray())
                 {
@@ -43,7 +51,17 @@ namespace QueefCord.Core.Entities.EntitySystems
             }
 
             AllHitboxes = Concat;
-            RuntimeHitboxes.Clear();
+
+            foreach(Collideable2D c in AllHitboxes)
+            {
+                if(c.Has(out ChunkAllocator allocator))
+                {
+                    allocator.Dispose();
+                }
+            }
+
+            StaticRuntimeHitboxes.Clear();
+            KinematicRuntimeHitboxes.Clear();
         }
 
         public override void Draw(SpriteBatch sb)

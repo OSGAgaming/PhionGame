@@ -55,6 +55,6 @@ namespace QueefCord.Content.Entities
 
         public virtual void Dispose() { }
 
-        public virtual void Update(in Entity entity, GameTime gameTime) { }
+        public virtual void Update(in EntityCore entity, GameTime gameTime) { }
     }
 }

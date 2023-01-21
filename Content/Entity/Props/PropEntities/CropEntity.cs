@@ -64,12 +64,7 @@ namespace QueefCord.Core.Tiles
                 {
 
                     for (int i = 0; i < 3; i++)
-                        SceneHolder.CurrentScene.AddEntity(new ItemEntity<T>()
-                        {
-                            Transform = new Transform(prop.Center),
-                            Size = new Vector2(20),
-                            Velocity = new Vector2((float)Rand.random.NextDouble() * 2 - 1, (float)Rand.random.NextDouble() * 2 - 1)
-                        });
+                        SceneHolder.CurrentScene.AddEntity(new ItemEntity<T>(prop.Center, new Vector2(20), Rand.NextVec2(-1, 1)));
                 }
 
                 Growth = 0;

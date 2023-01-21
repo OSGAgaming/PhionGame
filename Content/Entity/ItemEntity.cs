@@ -16,7 +16,7 @@ using System.Diagnostics;
 
 namespace QueefCord.Content.Entities
 {
-    internal class ItemEntity<T> : KinematicEntity2D, IUpdate, IDraw where T : IStoreable, new()
+    internal class ItemEntity<T> : Entity2D, IUpdate, IDraw where T : IStoreable, new()
     {
         public string Layer => "Default";
 
@@ -24,8 +24,9 @@ namespace QueefCord.Content.Entities
 
         private readonly int GracePeriod = 30;
         private int GraceTimer;
+        protected RigidBody rigidBody;
 
-        public ItemEntity(Vector2 size = default, Vector2 pos = default)
+        public ItemEntity(Vector2 size = default, Vector2 pos = default, Vector2 velocity = default)
         {
             if (AssociatedItem != null && size == default)
                 Size = AssociatedItem.Icon.Bounds.Size.ToVector2();
@@ -33,8 +34,13 @@ namespace QueefCord.Content.Entities
             if (size != default) Size = size;
 
             AddMechanic(new EntityCollision(this, Size, true, true));
+            AddMechanic(new RigidBody(0));
+
             GraceTimer = GracePeriod;
             Transform.Position = pos;
+
+            rigidBody = Get<RigidBody>();
+            rigidBody.Velocity = velocity;
         }
 
         public override void OnUpdate(GameTime gameTime)

@@ -23,7 +23,6 @@ namespace QueefCord.Content.Entities
         public float KnockBack;
 
         private int ArrowTimer;
-
         public override void SetDefaults()
         {
             Size = new Vector2(32);
@@ -38,12 +37,10 @@ namespace QueefCord.Content.Entities
         public override void OnDeath(GameTime gameTime)
         {
             for (int i = 0; i < 3; i++)
-                SceneHolder.CurrentScene.AddEntity(new ItemEntity<MilkItem>()
-                {
-                    Transform = new Transform(Center),
-                    Size = new Vector2(20),
-                    Velocity = new Vector2((float)Rand.random.NextDouble() * 2 - 1, (float)Rand.random.NextDouble() * 2 - 1)
-                });
+                SceneHolder.CurrentScene.AddEntity(new ItemEntity<MilkItem>(
+                    new Vector2(20),
+                    Center,
+                    Rand.NextVec2(-1, 1)));
         }
 
         public override void OnDraw(SpriteBatch sb)
@@ -52,7 +49,7 @@ namespace QueefCord.Content.Entities
 
             sb.Draw(Assets<Texture2D>.Get("Textures/NPCs/GreenCow"), 
                 Transform.Position, Get<Animation>().Frame, color, 0f,
-                Vector2.Zero, Vector2.One, Velocity.X > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
+                Vector2.Zero, Vector2.One, rigidBody.Velocity.X > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0f);
         }
 
         public override void AI()
@@ -75,7 +72,7 @@ namespace QueefCord.Content.Entities
             else
             {
                 Vector2 lookAt = Vector2.Normalize(Target.Center - Center);
-                Velocity += lookAt * 0.05f;
+                rigidBody.Velocity += lookAt * 0.05f;
 
                 a.Animate(1, 8, 7);
 
@@ -87,10 +84,10 @@ namespace QueefCord.Content.Entities
                     Vector2 NormalizedDist = Vector2.Normalize(Target.Center - Center);
 
                     HostileArrow arrow = new HostileArrow();
-                    arrow.Velocity = NormalizedDist * 3;
+                    arrow.rigidBody.Velocity = NormalizedDist * 3;
                     arrow.Size = new Vector2(10);
                     arrow.Center = Center + NormalizedDist * (15 + 2);
-                    arrow.Friction = Vector2.One;
+                    arrow.rigidBody.Drag = Vector2.One;
 
                     Projectile.SpawnProjectile(arrow);
                 }
@@ -103,7 +100,7 @@ namespace QueefCord.Content.Entities
         {
             Vector2 lookAt = Vector2.Normalize(Target.Center - Center);
 
-            if (entity is KinematicEntity2D k) k.Velocity += lookAt * KnockBack;
+            if (entity.Has(out RigidBody r)) r.Velocity += lookAt * KnockBack;
         }
     }
 }

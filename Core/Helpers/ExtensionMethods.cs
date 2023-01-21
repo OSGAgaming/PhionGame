@@ -8,19 +8,6 @@ namespace QueefCord.Core.Helpers
 {
     public static class Extensions
     {
-        public static float NextFloat(this Random random, float min, float max)
-        {
-            if (min > max)
-            {
-                throw new ArgumentException("min cannot be greater than max.");
-            }
-
-            return min + (float)random.NextDouble() * (max - min);
-        }
-        public static float NextFloat(this Random random, float max)
-        {
-            return (float)(random.NextDouble() * max);
-        }
         public static bool IsBetween(this float num, float min, float max)
         {
             return num > min && num < max;
@@ -104,6 +91,18 @@ namespace QueefCord.Core.Helpers
         public static Rectangle Multiply(this Rectangle r, float d)
         {
             return new Rectangle((int)(r.X * d), (int)(r.Y * d), (int)(r.Width * d), (int)(r.Height * d));
+        }
+        public static Rectangle Multiply(this Rectangle r, Point d)
+        {
+            return new Rectangle(r.X * d.X, r.Y * d.Y, r.Width * d.X, r.Height * d.Y);
+        }
+        public static Rectangle Divide(this Rectangle r, Point d)
+        {
+            return new Rectangle(r.X / d.X, r.Y / d.Y, r.Width / d.X, r.Height / d.Y);
+        }
+        public static Rectangle Divide(this Rectangle r, float d)
+        {
+            return new Rectangle((int)(r.X / d), (int)(r.Y / d), (int)(r.Width / d), (int)(r.Height / d));
         }
         public static Rectangle AddPos(this Rectangle r, Vector2 p)
         {

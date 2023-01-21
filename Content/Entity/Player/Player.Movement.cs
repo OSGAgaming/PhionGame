@@ -34,7 +34,7 @@ namespace QueefCord.Content.Entities
             throw new NotImplementedException();
         }
 
-        public void Update(in Entity entity, GameTime gameTime)
+        public void Update(in EntityCore entity, GameTime gameTime)
         {
             Player player = entity as Player;
 
@@ -50,18 +50,18 @@ namespace QueefCord.Content.Entities
             }
 
             if (GameInput.Instance["D"].IsDown())
-                player.Velocity.X += MovementSpeed;       
+                player.rigidBody.Velocity.X += MovementSpeed;       
 
             if (GameInput.Instance["A"].IsDown())
-                player.Velocity.X -= MovementSpeed;
+                player.rigidBody.Velocity.X -= MovementSpeed;
 
             if (GameInput.Instance["S"].IsDown())
-                player.Velocity.Y += MovementSpeed;
+                player.rigidBody.Velocity.Y += MovementSpeed;
 
             if (GameInput.Instance["W"].IsDown() && collidingDown && JumpCooldown == 0)
             {
                 JumpCooldown = JumpMaxCooldown;
-                player.Velocity.Y -= JumpForce;
+                player.rigidBody.Velocity.Y -= JumpForce;
             }
 
             if (JumpCooldown > 0) JumpCooldown--;

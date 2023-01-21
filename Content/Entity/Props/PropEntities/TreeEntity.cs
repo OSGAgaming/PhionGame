@@ -68,12 +68,8 @@ namespace QueefCord.Core.Tiles
                 SceneHolder.CurrentScene.RemoveEntity(prop);
 
                 for (int i = 0; i < 3; i++)
-                    SceneHolder.CurrentScene.AddEntity(new ItemEntity<LogWoodItem>()
-                    {
-                        Transform = new Transform(prop.Center),
-                        Size = new Vector2(20),
-                        Velocity = new Vector2((float)Rand.random.NextDouble() * 2 - 1, (float)Rand.random.NextDouble() * 2 - 1)
-                    });
+                    SceneHolder.CurrentScene.AddEntity(new ItemEntity<LogWoodItem>(
+                        prop.Center, new Vector2(20), Rand.NextVec2(-1, 1)));
             }
         }
     }

@@ -15,6 +15,7 @@ using QueefCord.Core.Scenes;
 using QueefCord.Core.Interfaces;
 using QueefCord.Core.Graphics;
 using QueefCord.Content.Graphics;
+using QueefCord.Core.Resources;
 
 namespace QueefCord.Content.UI
 {
@@ -36,8 +37,10 @@ namespace QueefCord.Content.UI
                      m.DrawToMiniMap(sb);
                  });
             }
-            
-            //Utils.DrawRectangle(new Rectangle(MiniMap.Position, tex.Bounds.Size));
+
+            Texture2D tex = LayerHost.GetLayer("Default").MapHost.Maps.Get("TileMap").MapTarget;
+
+            //Utils.DrawRectangle(new Rectangle(Point.Zero, new Point(300, 300)));
             //sb.Draw(tex, new Rectangle(Point.Zero, new Point(300,300)), Color.White);
             //sb.Draw(tex2, new Rectangle(MiniMap.Position, tex2.Bounds.Size), Color.White);
             

@@ -57,9 +57,8 @@ namespace QueefCord.Content.Entities
         }
         */
         //TODO: abstract
-        public static Rectangle TileFrame(TileSet manager, int i, int j)
+        public static Rectangle TileFrame(int i, int j)
         {
-            Tile?[,] tiles = manager.Tiles;
             int res = TileManager.frameResolution;
             int padding = 1;
 

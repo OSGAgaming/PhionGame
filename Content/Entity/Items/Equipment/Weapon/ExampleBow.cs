@@ -66,10 +66,10 @@ namespace QueefCord.Content.Entities
             if (UseTimer == 0)
             {
                 Arrow arrow = new Arrow();
-                arrow.Velocity = NormalizedDist * 4;
+                arrow.rigidBody.Velocity = NormalizedDist * 4;
                 arrow.Size = new Vector2(10);
                 arrow.Center = Player.LocalPlayer.Center + NormalizedDist * (dist + 2);
-                arrow.Friction = Vector2.One;
+                arrow.rigidBody.Drag = Vector2.One;
 
                 Projectile.SpawnProjectile(arrow);
 
