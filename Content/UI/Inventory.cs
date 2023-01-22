@@ -28,7 +28,7 @@ namespace QueefCord.Content.UI
         public static InventoryPanel[] ItemPanels;
         public static HotbarPanel[] HotbarPanels;
 
-        public static SlotInfo[] Items => Player.LocalPlayer.BagItems.Concat(Player.LocalPlayer.HotbarItems).ToArray();
+        public static SlotInfo[] Items => Player.LocalPlayer.Get<PlayerInventory>().BagItems.Concat(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems).ToArray();
 
         public static SlotInfo PickedUpItem;
         public static SlotInfo BinnedItem;
@@ -110,24 +110,24 @@ namespace QueefCord.Content.UI
 
         public static bool AddItem(IStoreable item)
         {
-            bool hotbarCheck = AddItemToArray(Player.LocalPlayer.HotbarItems, item);
+            bool hotbarCheck = AddItemToArray(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems, item);
             UIScreenManager.Instance.GetScreen<CraftingUI>().ReCalculate();
 
             if (hotbarCheck)
                 return true;
 
-            return AddItemToArray(Player.LocalPlayer.BagItems, item);
+            return AddItemToArray(Player.LocalPlayer.Get<PlayerInventory>().BagItems, item);
         }
 
         public static bool RemoveItems(IStoreable item, int amount)
         {
-            bool hotbarCheck = RemoveItemFromArray(Player.LocalPlayer.HotbarItems, item, amount);
+            bool hotbarCheck = RemoveItemFromArray(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems, item, amount);
             UIScreenManager.Instance.GetScreen<CraftingUI>().ReCalculate();
 
             if (!hotbarCheck)
                 return true;
 
-            return RemoveItemFromArray(Player.LocalPlayer.BagItems, item, amount);
+            return RemoveItemFromArray(Player.LocalPlayer.Get<PlayerInventory>().BagItems, item, amount);
         }
 
         public static bool RemoveItems(IStoreable item, SlotInfo[] slots, int amount)
@@ -145,32 +145,32 @@ namespace QueefCord.Content.UI
         {
             IStoreable item = new T();
 
-            bool hotbarCheck = RemoveItemFromArray(Player.LocalPlayer.HotbarItems, item, amount);
+            bool hotbarCheck = RemoveItemFromArray(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems, item, amount);
             UIScreenManager.Instance.GetScreen<CraftingUI>().ReCalculate();
 
             if (!hotbarCheck)
                 return true;
 
-            return RemoveItemFromArray(Player.LocalPlayer.BagItems, item, amount);
+            return RemoveItemFromArray(Player.LocalPlayer.Get<PlayerInventory>().BagItems, item, amount);
         }
 
         protected override void OnLoad()
         {
-            ItemPanels = new InventoryPanel[Player.LocalPlayer.InventorySpace];
-            HotbarPanels = new HotbarPanel[Player.LocalPlayer.HotbarSpace];
+            ItemPanels = new InventoryPanel[Player.LocalPlayer.Get<PlayerInventory>().InventorySpace];
+            HotbarPanels = new HotbarPanel[Player.LocalPlayer.Get<PlayerInventory>().HotbarSpace];
 
             PanelDimensions = new Point(35, 35);
 
             InventoryWidth = 300;
             InventoryScreenSpace = Renderer.BackBufferSize.ToVector2() / 2 - new Vector2(InventoryWidth, InventoryHeight) / 2;
 
-            for (int i = 0; i < Player.LocalPlayer.InventorySpace; i++)
+            for (int i = 0; i < Player.LocalPlayer.Get<PlayerInventory>().InventorySpace; i++)
             {
                 ItemPanels[i] = new InventoryPanel(i);
                 AddElement(ItemPanels[i]);
             }
 
-            for (int i = 0; i < Player.LocalPlayer.HotbarSpace; i++)
+            for (int i = 0; i < Player.LocalPlayer.Get<PlayerInventory>().HotbarSpace; i++)
             {
                 HotbarPanels[i] = new HotbarPanel(i);
                 AddElement(HotbarPanels[i]);
@@ -190,7 +190,7 @@ namespace QueefCord.Content.UI
             if (GameInput.Instance["Left"].IsJustPressed())
                 ActiveHotbarIndex--;
 
-            ActiveHotbarIndex = Math.Clamp(ActiveHotbarIndex, 0, Player.LocalPlayer.HotbarSpace - 1);
+            ActiveHotbarIndex = Math.Clamp(ActiveHotbarIndex, 0, Player.LocalPlayer.Get<PlayerInventory>().HotbarSpace - 1);
         }
         protected override void PostDraw(SpriteBatch sb)
         {
@@ -200,7 +200,7 @@ namespace QueefCord.Content.UI
             PanelDimensions = new Point(40, 40);
 
             InventoryWidth = 300;
-            InventoryHeight = (Player.LocalPlayer.InventorySpace / panelColums + 1) * PanelDimensions.Y;
+            InventoryHeight = (Player.LocalPlayer.Get<PlayerInventory>().InventorySpace / panelColums + 1) * PanelDimensions.Y;
             InventoryScreenSpace = Renderer.BackBufferSize.ToVector2() / 2 - new Vector2(InventoryWidth, InventoryHeight - 100) / 2;
 
             int ActualSizeX = InventoryWidth + PanelPadding * (panelColums + 2);
@@ -284,8 +284,8 @@ namespace QueefCord.Content.UI
 
             SlotInfo pui = Inventory.PickedUpItem;
 
-            Inventory.PickedUpItem = Player.LocalPlayer.BagItems[index];
-            Player.LocalPlayer.BagItems[index] = pui;
+            Inventory.PickedUpItem = Player.LocalPlayer.Get<PlayerInventory>().BagItems[index];
+            Player.LocalPlayer.Get<PlayerInventory>().BagItems[index] = pui;
 
             UIScreenManager.Instance.GetScreen<CraftingUI>().ReCalculate();
         }
@@ -294,7 +294,7 @@ namespace QueefCord.Content.UI
     public class HotbarPanel : UIElement
     {
         public int index { get; set; }
-        public IStoreable Item => Player.LocalPlayer.HotbarItems[index].item;
+        public IStoreable Item => Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index].item;
 
         private int outerPadding = 2;
 
@@ -314,7 +314,7 @@ namespace QueefCord.Content.UI
 
             int iX = index;
 
-            int width = Player.LocalPlayer.HotbarSpace * (parent.PanelDimensions.X + parent.PanelPadding) + parent.PanelPadding;
+            int width = Player.LocalPlayer.Get<PlayerInventory>().HotbarSpace * (parent.PanelDimensions.X + parent.PanelPadding) + parent.PanelPadding;
 
             int X = iX * (parent.PanelDimensions.X + parent.PanelPadding) + parent.PanelPadding + (Renderer.BackBufferSize.X - width) / 2;
             int Y = Renderer.BackBufferSize.Y - parent.PanelDimensions.Y - parent.PanelPadding;
@@ -334,8 +334,8 @@ namespace QueefCord.Content.UI
                 {
                     spriteBatch.Draw(Item.Icon, dimensions, Item.Icon.Bounds, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.1f);
 
-                    Utils.DrawTextToLeft(Player.LocalPlayer.HotbarItems[index].stack.ToString(), Color.Black, new Vector2(X + parent.TextOffsetX, Y + parent.TextOffsetY), 1f, 0f);
-                    Utils.DrawTextToLeft(Player.LocalPlayer.HotbarItems[index].stack.ToString(), Color.White, new Vector2(X + parent.TextOffsetX - 1, Y + parent.TextOffsetY - 1), 1f, 0f);
+                    Utils.DrawTextToLeft(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index].stack.ToString(), Color.Black, new Vector2(X + parent.TextOffsetX, Y + parent.TextOffsetY), 1f, 0f);
+                    Utils.DrawTextToLeft(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index].stack.ToString(), Color.White, new Vector2(X + parent.TextOffsetX - 1, Y + parent.TextOffsetY - 1), 1f, 0f);
                 }
             }
             else
@@ -363,8 +363,8 @@ namespace QueefCord.Content.UI
                 {
                     spriteBatch.Draw(Item.Icon, dimensions, Item.Icon.Bounds, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.1f);
 
-                    Utils.DrawTextToLeft(Player.LocalPlayer.HotbarItems[index].stack.ToString(), Color.Black, new Vector2(X2 + parent.TextOffsetX, Y2 + parent.TextOffsetY), 1f, 0f);
-                    Utils.DrawTextToLeft(Player.LocalPlayer.HotbarItems[index].stack.ToString(), Color.White, new Vector2(X2 + parent.TextOffsetX - 1, Y2 + parent.TextOffsetY - 1), 1f, 0f);
+                    Utils.DrawTextToLeft(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index].stack.ToString(), Color.Black, new Vector2(X2 + parent.TextOffsetX, Y2 + parent.TextOffsetY), 1f, 0f);
+                    Utils.DrawTextToLeft(Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index].stack.ToString(), Color.White, new Vector2(X2 + parent.TextOffsetX - 1, Y2 + parent.TextOffsetY - 1), 1f, 0f);
                 }
             }
         }
@@ -373,8 +373,8 @@ namespace QueefCord.Content.UI
         {
             SlotInfo pui = Inventory.PickedUpItem;
 
-            Inventory.PickedUpItem = Player.LocalPlayer.HotbarItems[index];
-            Player.LocalPlayer.HotbarItems[index] = pui;
+            Inventory.PickedUpItem = Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index];
+            Player.LocalPlayer.Get<PlayerInventory>().HotbarItems[index] = pui;
 
             UIScreenManager.Instance.GetScreen<CraftingUI>().ReCalculate();
         }
@@ -395,7 +395,7 @@ namespace QueefCord.Content.UI
                 int panelColums = parent.InventoryWidth / parent.PanelDimensions.X;
                 int panelRows = parent.InventoryHeight / parent.PanelDimensions.Y;
 
-                parent.InventoryHeight = (Player.LocalPlayer.InventorySpace / panelColums + 1) * parent.PanelDimensions.Y;
+                parent.InventoryHeight = (Player.LocalPlayer.Get<PlayerInventory>().InventorySpace / panelColums + 1) * parent.PanelDimensions.Y;
 
                 int ActualSizeX = parent.InventoryWidth;
 

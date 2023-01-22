@@ -5,10 +5,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
+using QueefCord.Core.Interfaces;
 
 namespace QueefCord.Core.Helpers
 {
-    public static class BFMExtensions
+    public static partial class Helpers
     {
         public static void Write(this BinaryWriter binaryWriter, Point point)
         {
@@ -64,7 +65,7 @@ namespace QueefCord.Core.Helpers
         public static Vector4 ReadVector4(this BinaryReader binaryReader)
         {
             return new Vector4(
-                binaryReader.ReadSingle(), binaryReader.ReadSingle(), 
+                binaryReader.ReadSingle(), binaryReader.ReadSingle(),
                 binaryReader.ReadSingle(), binaryReader.ReadSingle());
         }
         public static Rectangle ReadRect(this BinaryReader binaryReader)
@@ -83,6 +84,13 @@ namespace QueefCord.Core.Helpers
         {
             return new Transform(binaryReader.ReadVector2(), binaryReader.ReadSingle(), binaryReader.ReadVector2());
         }
+
+        public static T ReadObject<T>(this BinaryReader binaryReader) where T : class, ISerializable, IComponent, new()
+        {
+            T t = new T();
+            return t.Read(binaryReader) as T;
+        }
+
         public static Type? ReadType(this BinaryReader binaryReader)
         {
             string TypeName = binaryReader.ReadString();

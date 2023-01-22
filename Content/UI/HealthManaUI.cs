@@ -54,7 +54,7 @@ namespace QueefCord.Content.UI
 
                 Inventory inventory = UIScreenManager.Instance.GetScreen<Inventory>();
 
-                int width = Player.LocalPlayer.HotbarSpace * inventory.PanelDimensions.X;
+                int width = Player.LocalPlayer.Get<PlayerInventory>().HotbarSpace * inventory.PanelDimensions.X;
 
                 int X = (Renderer.BackBufferSize.X - width) / 2;
                 int Y = Renderer.BackBufferSize.Y - YOffset;

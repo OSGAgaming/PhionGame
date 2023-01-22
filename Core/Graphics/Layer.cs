@@ -101,10 +101,10 @@ namespace QueefCord.Core.Graphics
 
         }
 
-        public void Save(BinaryWriter bw)
+        public void Write(BinaryWriter bw)
         {
             bw.Write(Priority);
-            Camera.Save(bw);
+            Camera.Write(bw);
             bw.Write(EffectPath);
             bw.Write(ScissorSource);
             bw.Write(Destination);
@@ -113,7 +113,7 @@ namespace QueefCord.Core.Graphics
             bw.Write(MapHost != null);
         }
 
-        public IComponent Load(BinaryReader br)
+        public IComponent Read(BinaryReader br)
         {
             Layer layer = 
                 new Layer(br.ReadSingle(), ContentWriter.Load<CameraTransform>(br), br.ReadString(), br.ReadRect(), br.ReadRect())

@@ -40,12 +40,12 @@ namespace QueefCord.Core.Entities
             }
         }
 
-        public IComponent Load(BinaryReader br)
+        public IComponent Read(BinaryReader br)
         {
             throw new NotImplementedException();
         }
 
-        public void Save(BinaryWriter bw)
+        public void Write(BinaryWriter bw)
         {
             throw new NotImplementedException();
         }

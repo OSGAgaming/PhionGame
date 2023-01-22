@@ -11,7 +11,7 @@ namespace QueefCord.Core.Entities
     {
         public Transform Transform;
 
-        public virtual IComponent Load(BinaryReader br) 
+        public virtual IComponent Read(BinaryReader br) 
         {
             Transform Transform = br.ReadTransform();
             Type type = br.ReadType();
@@ -21,7 +21,7 @@ namespace QueefCord.Core.Entities
 
             return e;
         }
-        public virtual void Save(BinaryWriter bw) 
+        public virtual void Write(BinaryWriter bw) 
         {
             bw.Write(Transform);
             bw.Write(GetType());

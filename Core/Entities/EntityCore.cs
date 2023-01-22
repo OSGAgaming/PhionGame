@@ -6,6 +6,8 @@ using QueefCord.Core.Interfaces;
 using QueefCord.Core.Maths;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
+using System.IO;
+using QueefCord.Core.Helpers;
 
 namespace QueefCord.Core.Entities
 {
@@ -23,6 +25,41 @@ namespace QueefCord.Core.Entities
 
             foreach (IEntityModifier iem in Mechanics)
                 iem.Update(this, gameTime);
+        }
+
+        public override void Write(BinaryWriter bw)
+        {
+            base.Write(bw);
+
+            bw.Write(Mechanics.Count);
+
+            foreach (IEntityModifier iem in Mechanics)
+            {
+                if(iem is ISerializable ser)
+                {
+                    bw.Write(iem.GetType());
+                    ser.Write(bw);
+                }
+            }
+        }
+
+        public override IComponent Read(BinaryReader br)
+        {
+            EntityCore ic = base.Read(br) as EntityCore;
+
+            int mecCount = br.ReadInt32();
+
+            for(int i = 0; i < mecCount; i++)
+            {
+                Type t = br.ReadType();
+
+                ISerializable modifier = (ISerializable)Activator.CreateInstance(t);
+                IComponent component = modifier.Read(br);
+
+                ic.Mechanics.Add(component as IEntityModifier);
+            }
+
+            return ic;
         }
 
         public void AddMechanic<T>(T ie) where T : IEntityModifier

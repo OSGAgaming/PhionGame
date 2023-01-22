@@ -134,7 +134,7 @@ namespace QueefCord.Core.Scenes
 
         public virtual void OnDeactivate() { }
 
-        public void Save(BinaryWriter bw)
+        public void Write(BinaryWriter bw)
         {
             bw.Write(GetType());
 
@@ -156,12 +156,12 @@ namespace QueefCord.Core.Scenes
                 {
                     bw.Write(s.GetType());
 
-                    s.Save(bw);
+                    s.Write(bw);
                 }
             }
         }
 
-        public IComponent Load(BinaryReader br)
+        public IComponent Read(BinaryReader br)
         {
             Type type = br.ReadType();
             Scene scene = Activator.CreateInstance(type) as Scene;

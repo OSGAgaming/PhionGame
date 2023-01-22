@@ -18,7 +18,7 @@ namespace QueefCord.Core.IO
         {
             object o = Activator.CreateInstance(type);
             if (o is ISerializable s)
-                return s.Load(br);
+                return s.Read(br);
 
             throw new Exception("Unserializable");
 
@@ -28,7 +28,7 @@ namespace QueefCord.Core.IO
         {
             object o = Activator.CreateInstance(type);
             if (o is ISerializable s)
-                return (T)s.Load(br);
+                return (T)s.Read(br);
 
             throw new Exception("Unserializable");
 

@@ -42,31 +42,29 @@ namespace QueefCord.Core.Entities
         public virtual void PostSave(BinaryWriter bw) { }
         public virtual void PostLoad(BinaryReader br, Entity2D e) { }
 
-        public override void Save(BinaryWriter bw)
+        public override void Write(BinaryWriter bw)
         {
+            base.Write(bw);
+
             bw.Write(id);
-            bw.Write(Transform);
             bw.Write(Size);
-            bw.Write(GetType());
 
             PostSave(bw);
         }
 
-        public override IComponent Load(BinaryReader br)
+        public override IComponent Read(BinaryReader br)
         {
+            Entity2D e2D = base.Read(br) as Entity2D;
+
             string id = br.ReadString();
-            Transform Transform = br.ReadTransform();
             Vector2 Size = br.ReadVector2();
-            Type type = br.ReadType();
 
-            Entity2D e = Activator.CreateInstance(type) as Entity2D;
-            e.Transform = Transform;
-            e.Size = Size;
-            e.id = id;
+            e2D.Size = Size;
+            e2D.id = id;
 
-            PostLoad(br, e);
+            PostLoad(br, e2D);
 
-            return e;
+            return e2D;
         }
 
         public Entity2D(Vector2 Position = default, Vector2 Size = default, string id = "", Action<Entity2D> col = null)

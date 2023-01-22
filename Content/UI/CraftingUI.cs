@@ -49,7 +49,7 @@ namespace QueefCord.Content.UI
             {
                 if (craftable.Recipie == null) continue;
 
-                IEnumerable<string> Items = Player.LocalPlayer.CraftItems.ToList().FindAll(n => n.item != null).Select(n => n.item.Id);
+                IEnumerable<string> Items = Player.LocalPlayer.Get<PlayerInventory>().CraftItems.ToList().FindAll(n => n.item != null).Select(n => n.item.Id);
 
                 if (!craftable.Recipie.ToList().FindAll(n => n.item != null).Select(n => n.item.Id).Except(Items).Any())
                 {
@@ -59,7 +59,7 @@ namespace QueefCord.Content.UI
                     {
                         int threshold = storeable.stack;
 
-                        foreach (SlotInfo playerItems in Player.LocalPlayer.CraftItems)
+                        foreach (SlotInfo playerItems in Player.LocalPlayer.Get<PlayerInventory>().CraftItems)
                         {
                             if (playerItems.item != null && storeable.item != null && playerItems.item.Id == storeable.item.Id)
                                 threshold -= playerItems.stack;
@@ -133,12 +133,12 @@ namespace QueefCord.Content.UI
 
             spriteBatch.Draw(panel, dimensions, Color.White);
 
-            if (Player.LocalPlayer.CraftItems[index].item == null) return;
+            if (Player.LocalPlayer.Get<PlayerInventory>().CraftItems[index].item == null) return;
 
-            spriteBatch.Draw(Player.LocalPlayer.CraftItems[index].item.Icon, dimensions.Inf(-2, -2), Color.White);
+            spriteBatch.Draw(Player.LocalPlayer.Get<PlayerInventory>().CraftItems[index].item.Icon, dimensions.Inf(-2, -2), Color.White);
 
-            Utils.DrawTextToLeft(Player.LocalPlayer.CraftItems[index].stack.ToString(), Color.Black, dimensions.Location.ToVector2(), 1f, 0f);
-            Utils.DrawTextToLeft(Player.LocalPlayer.CraftItems[index].stack.ToString(), Color.White, dimensions.Location.ToVector2() + new Vector2(1), 1f, 0f);
+            Utils.DrawTextToLeft(Player.LocalPlayer.Get<PlayerInventory>().CraftItems[index].stack.ToString(), Color.Black, dimensions.Location.ToVector2(), 1f, 0f);
+            Utils.DrawTextToLeft(Player.LocalPlayer.Get<PlayerInventory>().CraftItems[index].stack.ToString(), Color.White, dimensions.Location.ToVector2() + new Vector2(1), 1f, 0f);
 
             base.Draw(spriteBatch);
         }
@@ -147,8 +147,8 @@ namespace QueefCord.Content.UI
         {
             SlotInfo pui = Inventory.PickedUpItem;
 
-            Inventory.PickedUpItem = Player.LocalPlayer.CraftItems[index];
-            Player.LocalPlayer.CraftItems[index] = pui;
+            Inventory.PickedUpItem = Player.LocalPlayer.Get<PlayerInventory>().CraftItems[index];
+            Player.LocalPlayer.Get<PlayerInventory>().CraftItems[index] = pui;
 
             UIScreenManager.Instance.GetScreen<CraftingUI>().ReCalculate();
         }
@@ -190,7 +190,7 @@ namespace QueefCord.Content.UI
             {
                 int amount = ToBeCrafted.Recipie[i].stack;
 
-                Inventory.RemoveItems(ToBeCrafted.Recipie[i].item, Player.LocalPlayer.CraftItems, amount);
+                Inventory.RemoveItems(ToBeCrafted.Recipie[i].item, Player.LocalPlayer.Get<PlayerInventory>().CraftItems, amount);
             }
         }
     }

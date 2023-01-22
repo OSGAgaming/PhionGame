@@ -11,8 +11,8 @@ namespace QueefCord.Core.Interfaces
     //Wrapper for classification
     public interface ISerializable : IComponent
     {
-        public IComponent Load(BinaryReader br);
-        public void Save(BinaryWriter bw);
+        public IComponent Read(BinaryReader br);
+        public void Write(BinaryWriter bw);
 
     }
 }

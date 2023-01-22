@@ -70,7 +70,7 @@ namespace QueefCord.Core.IO
             LevelInfo buffer = Activator.CreateInstance(typeof(LevelInfo)) as LevelInfo;
             Stream writeStream = File.OpenWrite(Utils.LocalWorldPath + path + ".mgsc");
 
-            buffer.Save(new BinaryWriter(writeStream));
+            buffer.Write(new BinaryWriter(writeStream));
             //Debug.Write(jsonString);
 
         }
@@ -123,13 +123,13 @@ namespace QueefCord.Core.IO
             LevelInfo buffer = Activator.CreateInstance(typeof(LevelInfo)) as LevelInfo;
             Stream readStream = File.OpenRead(Utils.WorldPath + path + ".mgsc");
 
-            buffer = buffer.Load(new BinaryReader(readStream)) as LevelInfo;
+            buffer = buffer.Read(new BinaryReader(readStream)) as LevelInfo;
 
             SceneHolder.CurrentScene = buffer.scene;
             LayerHost.layers = buffer.layers;
         }
 
-        public IComponent Load(BinaryReader br)
+        public IComponent Read(BinaryReader br)
         {
             Scene scene = ContentWriter.Load<Scene>(br);
             Dictionary<string, Layer> layers = new Dictionary<string, Layer>();
@@ -149,15 +149,15 @@ namespace QueefCord.Core.IO
             return new LevelInfo(scene, layers);
         }
 
-        public void Save(BinaryWriter bw)
+        public void Write(BinaryWriter bw)
         {
-            SceneHolder.CurrentScene.Save(bw);
+            SceneHolder.CurrentScene.Write(bw);
             Dictionary<string, Layer> layerDict = LayerHost.layers;
 
             bw.Write(layerDict.Count);
             foreach (KeyValuePair<string, Layer> layer in layerDict)
             {
-                layer.Value.Save(bw);
+                layer.Value.Write(bw);
             }
 
             bw.Close();
