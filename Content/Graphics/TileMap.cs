@@ -58,8 +58,8 @@ namespace QueefCord.Content.Graphics
         public override void Load()
         {
             MapTarget = new RenderTarget2D(Renderer.Device,
-                Renderer.BackBufferSize.X / TileManager.drawResolution,
-                Renderer.BackBufferSize.Y / TileManager.drawResolution, false,
+                Renderer.BackBufferSize.X / TileManager.drawResolution + 2,
+                Renderer.BackBufferSize.Y / TileManager.drawResolution + 2, false,
                                            Renderer.Device.PresentationParameters.BackBufferFormat,
                                            DepthFormat.Depth24, 0, RenderTargetUsage.PreserveContents);
         }

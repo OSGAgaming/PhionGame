@@ -26,7 +26,7 @@ namespace QueefCord.Core.Helpers
             v / LayerHost.GetLayer(LayerName).Camera.Transform.Scale + 
             LayerHost.GetLayer(LayerName).Camera.Transform.Position;
         public static Vector2 ToMiniMap(this Vector2 v) => v / MiniMap.Resolution;
-        public static Vector2 ToMiniMap(this Point v) => v.Dot(new Vector2(1 / (float)MiniMap.Resolution)).ToVector2();
+        public static Vector2 ToMiniMap(this Point v) => v.Multiply(new Vector2(1 / (float)MiniMap.Resolution)).ToVector2();
         public static Rectangle ToMiniMap(this Rectangle r) => r.Multiply(1 / (float)MiniMap.Resolution);
 
         public static Texture2D pixel => Assets<Texture2D>.Get("pixel");

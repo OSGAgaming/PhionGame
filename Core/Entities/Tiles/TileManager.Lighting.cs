@@ -53,19 +53,6 @@ namespace QueefCord.Core.Tiles
             }
         }
 
-        public void UpdateAmbientLight(int a, int b, int radius, string ID)
-        {
-            int r = radius / 2;
-
-            for (int i = Math.Max(a - r, 0); i < Math.Min(a + r, ParentWorld.TileBounds.X); i++)
-            {
-                for (int j = Math.Max(b - r, 0); j < Math.Min(b + r, ParentWorld.TileBounds.Y); j++)
-                {
-                    if (!GetTile(i, j, ID).Active) SetLightColor(i, j, Color.White);
-                    else SetLightColor(i, j, Color.Black);
-                }
-            }
-        }
 
         public void EmitLight(int i, int j, float intensity, int radius, string ID, int iteration = 0)
         {
@@ -132,17 +119,17 @@ namespace QueefCord.Core.Tiles
             LayerHost.GetLayer("Default").MapHost.Maps.Get("TileLightingMap").DrawToBatchedTarget
                  ((sb) =>
                  {
-                     Point TL = (Camera.Transform.Position / TileManager.drawResolution).ToPoint();
-                     Point BR = (Renderer.BackBufferSize.ToVector2() / TileManager.drawResolution).ToPoint();
+                     Point TL = (Camera.Transform.Position / drawResolution).ToPoint();
+                     Point BR = (Renderer.BackBufferSize.ToVector2() / drawResolution).ToPoint();
 
                      Utils.DrawBoxFill(new Rectangle(
                          Math.Max(TL.X - 1, 0),
                          Math.Max(TL.Y - 1, 0),
-                         Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X),
-                         Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y)), Color.White, 0.1f);
+                         Math.Min(TL.X + BR.X + 2, ParentWorld.TileBounds.X),
+                         Math.Min(TL.Y + BR.Y + 2, ParentWorld.TileBounds.Y)), Color.White, 0.1f);
 
-                     for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X); i++)
-                         for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y); j++)
+                     for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 2, ParentWorld.TileBounds.X); i++)
+                         for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 2, ParentWorld.TileBounds.Y); j++)
                          {
                              if (GetSpace(i, j).TileColor != Color.White)
                              {
@@ -155,35 +142,6 @@ namespace QueefCord.Core.Tiles
 
         }
 
-        public void UpdateSunLighting(int a, int b, int radius, string ID)
-        {
-            UpdateAmbientLight(a, b, radius, ID);
-
-            int r = radius;
-
-            for (int i = Math.Max(a - r, 0); i < Math.Min(a + r, ParentWorld.TileBounds.X); i++)
-            {
-                for (int j = Math.Max(b - r, 0); j < Math.Min(b + r, ParentWorld.TileBounds.Y); j++)
-                {
-                    if (GetTile(i, j, ID).Active)
-                        SetTileColor(i, j, Color.Black);
-                }
-            }
-
-            for (int i = Math.Max(a - r * 2, 0); i < Math.Min(a + r * 2, ParentWorld.TileBounds.X); i++)
-            {
-                for (int j = Math.Max(b - r * 2, 0); j < Math.Min(b + r * 2, ParentWorld.TileBounds.Y); j++)
-                {
-                    if (GetSpace(i, j).LightSources == null) continue;
-
-                    if (GetSpace(i, j).LightSources.Value.R > 0)
-                    {
-                        EmitLight(i, j, GetSpace(i, j).LightSources.Value.R / 255f, radius, ID);
-                    }
-                }
-            }
-        }
-
         public void ApplyLighting()
         {
             int res = drawResolution;
@@ -194,16 +152,13 @@ namespace QueefCord.Core.Tiles
                 (Camera.Transform.Position.X + Math.Abs(delta.X)) % res,
                 (Camera.Transform.Position.Y + Math.Abs(delta.Y)) % res);
 
-            //if (remainder.X == 15) remainder.X = 0;
-            //if (remainder.Y == 15) remainder.Y = 0;
             UpdateLightBuffer();
-
 
             LayerHost.GetLayer("Default").MapHost.Maps.Get("UpscaledTileLightingMap").DrawToBatchedTarget
             ((sb) =>
             {
                 Texture2D tex = LayerHost.GetLayer("Default").MapHost.Maps.Get("TileLightingMap").MapTarget;
-                sb.Draw(tex, Renderer.BackBufferBounds, Color.White);
+                sb.Draw(tex, Vector2.Zero, drawResolution, Color.White);
             });
         }
     }

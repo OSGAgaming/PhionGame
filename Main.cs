@@ -43,7 +43,7 @@ namespace QueefCord
             base.Initialize();
         }
 
-        protected override void OnExiting(object sender, EventArgs args) => LevelInfo.SaveCurrentLevelToJSON("CurrentWorld");
+        //protected override void OnExiting(object sender, EventArgs args) => LevelInfo.SaveCurrentLevelToJSON("CurrentWorld");
         
 
         protected override void LoadContent()

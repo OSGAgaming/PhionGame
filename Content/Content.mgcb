@@ -56,30 +56,6 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Props/ExampleProp.png
 
-#begin Textures/Tiles/GrassTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/Tiles/GrassTile.png
-
-#begin Textures/Tiles/GrassWallTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/Tiles/GrassWallTile.png
-
 #begin Textures/Player/PlayerWalkAnimation.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -338,18 +314,6 @@
 /processorParam:TextureFormat=Color
 /build:Textures/Tiles/TestTileLoop.png
 
-#begin Textures/Tiles/RockTile.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Textures/Tiles/RockTile.png
-
 #begin Textures/Tiles/RockTileLoop.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -501,3 +465,27 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Textures/Tiles/RockTileTop.png
+
+#begin Textures/Tiles/DirtTileOutline.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Tiles/DirtTileOutline.png
+
+#begin Textures/Tiles/DirtTileLoop.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Textures/Tiles/DirtTileLoop.png

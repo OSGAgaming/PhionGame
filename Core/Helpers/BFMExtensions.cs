@@ -50,6 +50,14 @@ namespace QueefCord.Core.Helpers
             binaryWriter.Write(transform.Rotation);
             binaryWriter.Write(transform.Scale);
         }
+        public static void WriteObject(this BinaryWriter binaryWriter, object obj)
+        {
+            if (obj is ISerializable s)
+            {
+                binaryWriter.Write(obj.GetType());
+                s.Write(binaryWriter);
+            }
+        }
         public static void Write(this BinaryWriter binaryWriter, Type type)
         {
             binaryWriter.Write(type?.FullName ?? "throw");
@@ -99,6 +107,13 @@ namespace QueefCord.Core.Helpers
 
             if (TypeName == "throw") throw new TypeAccessException();
             else return Type.GetType(TypeName);
+        }
+
+        public static void ReadObject(this BinaryReader binaryReader)
+        {
+            Type t = binaryReader.ReadType();
+            ISerializable serializable = Activator.CreateInstance(t) as ISerializable;
+            serializable.Read(binaryReader);
         }
     }
 }

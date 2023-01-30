@@ -6,6 +6,8 @@ using QueefCord.Core.Helpers;
 using QueefCord.Content.UI;
 using QueefCord.Content.Entities;
 using System.Collections.Generic;
+using QueefCord.Core.Entities.EntitySystems;
+using QueefCord.Core.Scenes;
 
 namespace QueefCord.Core.Entities
 {
@@ -73,6 +75,7 @@ namespace QueefCord.Core.Entities
         public void Dispose()
         {
             Get<ChunkAllocator>().Dispose();
+            SceneHolder.CurrentScene.GetSystem<CollisionSystem>().StaticHitboxes.Remove(this);
         }
 
         public override bool Compare(Entity2D col)

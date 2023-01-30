@@ -353,18 +353,12 @@ namespace QueefCord.Core.Tiles
              (SpriteBatch sb) =>
              {
                  for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X); i++)
-                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y); j++)
+                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 2, ParentWorld.TileBounds.Y); j++)
                      {
-                         bool IsActive(int a, int b)
-                         {
-                             if (i + a < 0 || j + b < 0) return false;
-
-                             return GetTile(i + a, j + b, ID).Active;
-                         }
-
                          Tile tile = GetTile(i, j, ID);
-                         if ((IsActive(1, 0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1)) && !tile.Active && GetTile(i, j, ID).Top != 255
-                         && i == Math.Clamp(i, 1, ParentWorld.TileBounds.X) && j == Math.Clamp(j, 1, ParentWorld.TileBounds.Y))
+                         if (!tile.Active && tile.Top != 255
+                         && i == Math.Clamp(i, 1, ParentWorld.TileBounds.X)
+                         && j == Math.Clamp(j, 1, ParentWorld.TileBounds.Y))
                          {
 
                              Tile tileR = GetTile(i + 1, j, ID);
@@ -374,14 +368,14 @@ namespace QueefCord.Core.Tiles
 
                              Texture2D texTop = null;
 
-                             if (tileR.Active && TileOutlines.ContainsKey(tileR.id))
+                             if (tileR.Active && TileTop.ContainsKey(tileR.id))
                                  texTop = TileTop[tileR.id];
-                             if (tileL.Active && TileOutlines.ContainsKey(tileL.id))
+                             if (tileL.Active && TileTop.ContainsKey(tileL.id))
                                  texTop = TileTop[tileL.id];
 
-                             if (tileU.Active && TileOutlines.ContainsKey(tileU.id))
+                             if (tileU.Active && TileTop.ContainsKey(tileU.id))
                                  texTop = TileTop[tileU.id];
-                             if (tileD.Active && TileOutlines.ContainsKey(tileD.id))
+                             if (tileD.Active && TileTop.ContainsKey(tileD.id))
                                  texTop = TileTop[tileD.id];
 
 
@@ -397,16 +391,13 @@ namespace QueefCord.Core.Tiles
 
                              Texture2D tex = TileOutlines[tile.id];
 
-                             if (!IsActive(1, 0) || !IsActive(-1, 0) || !IsActive(0, 1) || !IsActive(0, -1)
-                              || !IsActive(-1, -1) || !IsActive(-1, 1) || !IsActive(1, 1) || !IsActive(1, -1))
+                             if (tile.Outline != 0)
                              {
                                  Rectangle r = new Rectangle(i * res, j * res, res, res);
-                                 Rectangle s = ByteToFrame(GetTile(i, j, ID).Outline);
+                                 Rectangle s = ByteToFrame(tile.Outline);
 
-                                 if (GetTile(i, j, ID).Outline != 0)
-                                 {
-                                     sb.Draw(tex, r, s, Color.White, 0.05f);
-                                 }
+
+                                 sb.Draw(tex, r, s, Color.White, 0.05f);
                              }
                          }
                      }
@@ -526,6 +517,12 @@ namespace QueefCord.Core.Tiles
 
             ConfigureTop(x, y, ID);
             void SetOutline(int x, int y, byte n) => this.SetOutline(x, y, ID, n);
+
+            for (int i = Math.Max(TL.X - 1, 0); i < x + 3; i++)
+                for (int j = Math.Max(TL.Y - 1, 0); j < y + 3; j++)
+                {
+                    SetOutline(i, j, 0);
+                }
 
             for (int i = Math.Max(TL.X - 1, 0); i < x + 3; i++)
                 for (int j = Math.Max(TL.Y - 1, 0); j < y + 3; j++)

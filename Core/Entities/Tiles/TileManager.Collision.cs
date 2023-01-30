@@ -59,8 +59,8 @@ namespace QueefCord.Core.Tiles
             Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / drawResolution).ToPoint();
             Point BR = (Renderer.BackBufferSize.ToVector2() / drawResolution).ToPoint();
 
-            for (int i = Math.Max(bounds.X - 1, 0); i < Math.Min(bounds.Right + 1, ParentWorld.TileBounds.X); i++)
-                for (int j = Math.Max(bounds.Y - 1, 0); j < Math.Min(bounds.Bottom + 1, ParentWorld.TileBounds.Y); j++)
+            for (int i = Math.Max(bounds.X, 0); i < Math.Min(bounds.Right, ParentWorld.TileBounds.X); i++)
+                for (int j = Math.Max(bounds.Y, 0); j < Math.Min(bounds.Bottom, ParentWorld.TileBounds.Y); j++)
                 {
                     Tile tile = GetTile(i, j, ID);
 
@@ -76,7 +76,7 @@ namespace QueefCord.Core.Tiles
                     if (iterate && (!tile.Active || j >= bounds.Bottom - 1))
                     {
                         endX = i;
-                        endY = j - 1;
+                        endY = (j == bounds.Bottom - 1 && tile.Active) ? j : j - 1;
 
                         int greedyCount;
                         int step = 0;
@@ -89,7 +89,7 @@ namespace QueefCord.Core.Tiles
                             for (int top = startY; top <= endY; top++)
                             {
                                 Tile t = GetTile(startX + step, top, ID);
-                                if (t.Active) greedyCount++;
+                                if (t.Active && t.solid) greedyCount++;
                             }
                         }
                         while (greedyCount == endY - startY + 1 && startX + step < bounds.Right);

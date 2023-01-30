@@ -16,12 +16,14 @@ namespace QueefCord.Core.Entities.EntitySystems
         public HashSet<Collideable2D> StaticRuntimeHitboxes = new HashSet<Collideable2D>();
         public HashSet<Collideable2D> KinematicRuntimeHitboxes = new HashSet<Collideable2D>();
 
+        public HashSet<Collideable2D> StaticHitboxes = new HashSet<Collideable2D>();
+
         public List<Collideable2D> AllHitboxes = new List<Collideable2D>();
 
-        public void GenerateStaticHitbox(Collideable2D e)
-        {
-            StaticRuntimeHitboxes.Add(e);
-        }
+        public void GenerateStaticHitbox(Collideable2D e) => StaticHitboxes.Add(e);
+
+        public void GenerateRuntimeStaticHitbox(Collideable2D e) => StaticRuntimeHitboxes.Add(e);
+
         public void GenerateKinematicHitbox(Collideable2D e) => KinematicRuntimeHitboxes.Add(e);
 
         public override void Update(GameTime gameTime)
@@ -30,6 +32,7 @@ namespace QueefCord.Core.Entities.EntitySystems
 
             Concat.AddRange(StaticRuntimeHitboxes);
             Concat.AddRange(KinematicRuntimeHitboxes);
+            Concat.AddRange(StaticHitboxes);
 
             foreach (Collideable2D e in AllHitboxes.ToArray())
             {
@@ -52,9 +55,9 @@ namespace QueefCord.Core.Entities.EntitySystems
 
             AllHitboxes = Concat;
 
-            foreach(Collideable2D c in AllHitboxes)
+            foreach (Collideable2D c in AllHitboxes)
             {
-                if(c.Has(out ChunkAllocator allocator))
+                if (c.Has(out ChunkAllocator allocator))
                 {
                     allocator.Dispose();
                 }
@@ -66,8 +69,8 @@ namespace QueefCord.Core.Entities.EntitySystems
 
         public override void Draw(SpriteBatch sb)
         {
-            //foreach (Collideable2D e in AllHitboxes.ToArray())
-            //    Utils.DrawRectangle(e.CollisionFrame, Color.Red, 2);            
+            foreach (Collideable2D e in AllHitboxes.ToArray())
+                Utils.DrawRectangle(e.CollisionFrame, Color.Red, 2);            
         }
 
         public void Compare(Collideable2D Ke, Collideable2D Ke2)

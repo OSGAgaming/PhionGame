@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using QueefCord.Core.Tiles;
 using Microsoft.Xna.Framework.Graphics;
 using QueefCord.Content.Entities;
+using PhionGame.Content.Entity.WorldGeneration;
+using QueefCord.Core.Graphics;
 
 namespace QueefCord.Core.Entities
 {
@@ -33,18 +35,27 @@ namespace QueefCord.Core.Entities
     public class World : IUpdate, IDraw
     {
         public static World CurrentWorld;
-
-        public Dictionary<Point, Chunk> ActiveChunks = new Dictionary<Point, Chunk>();
-        public Point ChunkSize;
         public TileManager WorldTileManager;
-        public Dictionary<string, TileSetInfo> TileSets;
+
+        public Dictionary<Point, Chunk> Chunks = new Dictionary<Point, Chunk>();
+        public Point ChunkSize;
         public Point ChunkSpan;
+
+        public Dictionary<string, TileSetInfo> TileSets;
 
         public string Layer => "Default";
 
-        public Point TileBounds => ChunkSize.Dot(ChunkSpan);
+        public Point TileBounds => ChunkSize.Multiply(ChunkSpan);
 
-        public World(Point chunkSize, Point chunkSpan, params TileSetInfo[] tileSets)
+        public Rectangle GetActiveChunks(CameraTransform c)
+        {
+            Point TL = (c.Transform.Position / ChunkSize.ToVector2()).ToPoint();
+            Point BR = (Renderer.BackBufferSize.ToVector2() / ChunkSize.ToVector2()).ToPoint();
+
+            return new Rectangle(TL, BR).Divide(TileManager.drawResolution);
+        }
+
+        public World(Point chunkSize, Point chunkSpan, WorldGeneration generation = null, params TileSetInfo[] tileSets)
         {
             WorldTileManager = new TileManager(this);
             TileSets = new Dictionary<string, TileSetInfo>();
@@ -60,18 +71,19 @@ namespace QueefCord.Core.Entities
                 for (int j = 0; j < ChunkSpan.Y; j++)
                 {
                     Rectangle bounds = new Rectangle(i, j, 1, 1).Multiply(ChunkSize.X);
-                    ActiveChunks.Add(new Point(i, j), new Chunk(this, bounds, tileSets));
+                    Chunks.Add(new Point(i, j), new Chunk(this, bounds, tileSets));
                 }
             }
 
             CurrentWorld = this;
+            generation?.Generate(this);
         }
 
         public void Update(GameTime gameTime)
         {
             WorldTileManager.Update(gameTime);
 
-            foreach (var chunk in ActiveChunks)
+            foreach (var chunk in Chunks)
             {
                 chunk.Value.Update(gameTime);
             }
@@ -79,6 +91,14 @@ namespace QueefCord.Core.Entities
 
         public void Draw(SpriteBatch sb)
         {
+            Rectangle activeChunks = GetActiveChunks(LayerHost.GetLayer("Default").Camera);
+            for(int i = activeChunks.X; i <= activeChunks.Right; i++)
+            {
+                for(int j = activeChunks.Y; j <= activeChunks.Bottom; j++)
+                {
+                    Utils.DrawRectangle(new Rectangle(i, j, 1, 1).Multiply(ChunkSize.Multiply(TileManager.drawResolution)), Color.Purple, 3);
+                }
+            }
             WorldTileManager.Draw(sb);
         }
     }

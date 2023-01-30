@@ -52,6 +52,24 @@ namespace QueefCord.Core.Tiles
             ResetLights();
         }
 
+        public void UpdateTileMetaData(Rectangle bounds)
+        {
+            SceneHolder.CurrentScene?.GetSystem<CollisionSystem>().StaticHitboxes.Clear();
+
+            UpdateSunLighting(LightIntensity, ID, bounds);
+            ConfigureOutline(bounds.Right, bounds.Bottom, ID);
+
+            CollisionBoxes = UpdateChunkOverBounds(ID, bounds);
+
+            foreach (var r in CollisionBoxes.Values)
+            {
+                foreach (Rectangle rect in r)
+                {
+                    SceneHolder.CurrentScene?.GetSystem<CollisionSystem>().GenerateStaticHitbox(new Collideable2D(null, rect, true));
+                }
+            }
+        }
+
         public override void OnUpdate(GameTime gameTime)
         {
             if (PlaceMode)
@@ -96,11 +114,7 @@ namespace QueefCord.Core.Tiles
                 {
                     AddTile(a, b, ID, ActiveAtlas);
 
-                    //make event
-                    UpdateSunLighting(a, b, LightIntensity, ID);
-                    ConfigureOutline(a, b, ID);
-
-                    CollisionBoxes = UpdateChunkOverBounds(ID, tileDrag);
+                    UpdateTileMetaData(new Rectangle(a, b, 1, 1));
                 }
 
                 if (!GameInput.Instance.IsRightClicking)
@@ -118,10 +132,7 @@ namespace QueefCord.Core.Tiles
                         }
                     }
 
-                    UpdateSunLighting(LightIntensity, ID, tileDrag);
-                    ConfigureOutline(a, b, ID);
-
-                    CollisionBoxes = UpdateChunkOverBounds(ID, tileDrag);
+                    UpdateTileMetaData(tileDrag);
                 }
             }
 
@@ -133,19 +144,11 @@ namespace QueefCord.Core.Tiles
                 RenderTileMaps(sb, set.ID);
                 RenderOutline(sb, set.ID);
                 DrawToMiniMap(set.ID);
-
-                foreach (var r in CollisionBoxes.Values)
-                {
-                    foreach (Rectangle rect in r)
-                    {
-                        SceneHolder.CurrentScene.GetSystem<CollisionSystem>().GenerateStaticHitbox(new Collideable2D(null, rect, set.Solid));
-                    }
-                }
             }
         }
 
         //Utils
-        public Chunk GetChunk(int x, int y) => ParentWorld.ActiveChunks[new Point(x / ParentWorld.ChunkSize.X, y / ParentWorld.ChunkSize.Y)];
+        public Chunk GetChunk(int x, int y) => ParentWorld.Chunks[new Point(x / ParentWorld.ChunkSize.X, y / ParentWorld.ChunkSize.Y)];
 
         public Tile GetTile(int x, int y, string set) => GetChunk(x, y).TileSets[set].Tiles[x % ParentWorld.ChunkSize.X, y % ParentWorld.ChunkSize.Y];
 

@@ -25,6 +25,7 @@ namespace QueefCord.Core.Tiles
     {
         public const short TestTile = 0;
         public const short RockTile = 1;
+        public const short DirtTile = 2;
     }
 
     public partial class TileManager : IUpdate
@@ -52,7 +53,7 @@ namespace QueefCord.Core.Tiles
                     if (Assets<Texture2D>.Has($"Textures/Tiles/{TileTexturePaths[id]}Top"))
                         TileTop.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}Top").GetValue());
 
-                    TileColors.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}").GetValue().GetDominantColor());
+                    TileColors.Add(id, Assets<Texture2D>.Get($"Textures/Tiles/{TileTexturePaths[id]}Loop").GetValue().GetDominantColor());
                 }
             }
         }

@@ -50,12 +50,15 @@ namespace QueefCord.Core.Helpers
         //TODO: Make a snap for float
         public static Rectangle Snap(this Rectangle v, int snap) =>
             new Rectangle(Snap(v.X, snap), Snap(v.Y, snap), Snap(v.Width, snap), Snap(v.Height, snap));
-
-        public static Point Dot(this Point p1, Point p2)
+        public static Point Multiply(this Point p1, int p2)
+        {
+            return new Point(p1.X * p2, p1.Y * p2);
+        }
+        public static Point Multiply(this Point p1, Point p2)
         {
             return new Point(p1.X * p2.X, p1.Y * p2.Y);
         }
-        public static Point Dot(this Point p1, Vector2 p2)
+        public static Point Multiply(this Point p1, Vector2 p2)
         {
             return new Point((int)(p1.X * p2.X), (int)(p1.Y * p2.Y));
         }
@@ -71,7 +74,10 @@ namespace QueefCord.Core.Helpers
         {
             return new Point(p1.X + (int)p2.X, p1.Y + (int)p2.Y);
         }
-
+        public static Point Divide(this Point r, Point d)
+        {
+            return new Point(r.X / d.X, r.Y / d.Y);
+        }
         public static Point Sub(this Point p1, Vector2 p2)
         {
             return new Point(p1.X - (int)p2.X, p1.Y - (int)p2.Y);
@@ -115,7 +121,7 @@ namespace QueefCord.Core.Helpers
 
         public static Rectangle MultSize(this Rectangle r, Vector2 p)
         {
-            return new Rectangle(r.Location, r.Size.Dot(p));
+            return new Rectangle(r.Location, r.Size.Multiply(p));
         }
 
         public static Rectangle Inf(this Rectangle R, int h, int v)

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using QueefCord.Core.Tiles;
+using QueefCord.Core.Graphics;
 
 namespace QueefCord.Content.Entities
 {
@@ -36,9 +37,14 @@ namespace QueefCord.Content.Entities
             if (!(entity is IUpdate updateable)) return null;
 
             Chunks.Clear();
-            foreach(var p in World.CurrentWorld.ActiveChunks)
+            Rectangle r = World.CurrentWorld.GetActiveChunks(LayerHost.GetLayer("Default").Camera);
+
+            for(int i = r.X; i <= r.Right; i++)
             {
-                p.Value.Entities.Remove(updateable);
+                for (int j = r.Y; j <= r.Bottom; j++)
+                {
+                    World.CurrentWorld.Chunks[new Point(i, j)].Entities.Remove(updateable);
+                }
             }
 
             int Left = (int)entity.Transform.Position.X / (World.CurrentWorld.ChunkSize.X * TileManager.drawResolution);
@@ -62,7 +68,7 @@ namespace QueefCord.Content.Entities
             }
 
             foreach (var chunks in Chunks)
-                World.CurrentWorld.ActiveChunks[chunks].Entities.Add(updateable);
+                World.CurrentWorld.Chunks[chunks].Entities.Add(updateable);
 
             return Chunks;
         }
@@ -83,7 +89,7 @@ namespace QueefCord.Content.Entities
         {
             foreach(var chunk in Chunks)
             {
-                World.CurrentWorld.ActiveChunks[chunk].Entities.Remove(Entity);
+                World.CurrentWorld.Chunks[chunk].Entities.Remove(Entity);
             }
         }
     }

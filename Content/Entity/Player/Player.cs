@@ -28,6 +28,7 @@ namespace QueefCord.Content.Entities
         public RigidBody rigidBody;
 
         private Texture2D PlayerTexture;
+
         public Player()
         {
             PlayerTexture = Assets<Texture2D>.Get("Textures/Player/PlayerTest");
@@ -43,7 +44,6 @@ namespace QueefCord.Content.Entities
 
             Size = new Vector2(48, 48);
             Trim = new Point(-19, -16);
-
 
             rigidBody = Get<RigidBody>();
 

@@ -29,8 +29,10 @@ namespace QueefCord.Core.Tiles
     {
         public void RenderTiles(string ID)
         {
+            Vector2 scale = LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Scale;
+
             Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / drawResolution).ToPoint();
-            Point BR = (Renderer.BackBufferSize.ToVector2() / drawResolution).ToPoint();
+            Point BR = (Renderer.BackBufferSize.ToVector2() / scale / drawResolution).ToPoint();
 
             int res = drawResolution;
 
@@ -40,33 +42,22 @@ namespace QueefCord.Core.Tiles
              (SpriteBatch sb) =>
              {
                  for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X); i++)
-                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y); j++)
+                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 2, ParentWorld.TileBounds.Y); j++)
                      {
                          Tile tile = GetTile(i, j, ID);
-                         bool IsActive(int a, int b)
-                         {
-                             if (i + a < 0 || j + b < 0) return false;
 
-                             return GetTile(i + a, j + b, ID).Active;
-                         }
-
-                         if (!GetTile(i, j, ID).Active)
-                         {
-                             if ((IsActive(1, 0) || IsActive(-1, 0) || IsActive(0, 1) || IsActive(0, -1)))
-                             {
-                                 Rectangle r = new Rectangle(i * res, j * res, res, res);
-                                 Rectangle s = ParentWorld.TileSets[ID].FramingMethod?.Invoke(i, j) ?? Rectangle.Empty;
-
-                                 sb.Draw(tex, r, s, Color.White, 0.1f);
-                             }
-                         }
-
-                         if (GetTile(i, j, ID).Active)
+                         if (tile.Active)
                          {
                              Rectangle r = new Rectangle(i * res, j * res, res, res);
                              Rectangle s = ParentWorld.TileSets[ID].FramingMethod?.Invoke(i, j) ?? Rectangle.Empty;
 
                              sb.Draw(tex, r, s, Color.White, 0.1f);
+
+                             sb.Draw(tex, r.AddPos(new Point(-res, 0)), s, Color.White, 0.1f);
+                             sb.Draw(tex, r.AddPos(new Point(res, 0)), s, Color.White, 0.1f);
+                             sb.Draw(tex, r.AddPos(new Point(0, res)), s, Color.White, 0.1f);
+                             sb.Draw(tex, r.AddPos(new Point(0, -res)), s, Color.White, 0.1f);
+
                          }
                      }
              });
@@ -74,9 +65,13 @@ namespace QueefCord.Core.Tiles
 
         public void RenderTileMaps(SpriteBatch sb, string ID)
         {
-            Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / drawResolution).ToPoint();
-            Point BR = (Renderer.BackBufferSize.ToVector2() / drawResolution).ToPoint();
+            Vector2 scale = LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Scale;
 
+            Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / drawResolution).ToPoint();
+            Point BR = (Renderer.BackBufferSize.ToVector2() / scale / drawResolution).ToPoint();
+
+            Logger.NewText(BR);
+                
             int fRes = frameResolution;
             int dRes = drawResolution;
 
@@ -85,7 +80,7 @@ namespace QueefCord.Core.Tiles
              (SpriteBatch sb) =>
              {
                  for (int i = Math.Max(TL.X - 1, 0); i < Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X); i++)
-                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y); j++)
+                     for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 2, ParentWorld.TileBounds.Y); j++)
                      {
                          Tile tile = GetTile(i, j, ID);
 
@@ -107,9 +102,10 @@ namespace QueefCord.Core.Tiles
         public void DrawToMiniMap(string ID)
         {
             int res = drawResolution;
+            Vector2 scale = LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Scale;
 
-            Point TL = (LayerHost.GetLayer(Layer).Camera.Transform.Position / res).ToPoint();
-            Point BR = (Renderer.BackBufferSize.ToVector2() / res).ToPoint();
+            Point TL = (LayerHost.GetLayer(ParentWorld.Layer).Camera.Transform.Position / res).ToPoint();
+            Point BR = (Renderer.BackBufferSize.ToVector2() / scale / res).ToPoint();
 
             for (int i = Math.Max(TL.X - 1,0); i < Math.Min(TL.X + BR.X + 1, ParentWorld.TileBounds.X); i++)
                 for (int j = Math.Max(TL.Y - 1, 0); j < Math.Min(TL.Y + BR.Y + 1, ParentWorld.TileBounds.Y); j++)

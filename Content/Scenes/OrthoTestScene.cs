@@ -14,54 +14,40 @@ using QueefCord.Core.Input;
 using QueefCord.Core.Graphics;
 using QueefCord.Core.Entities;
 using QueefCord.Core.Resources;
+using PhionGame.Content.Entity.WorldGeneration;
 
 namespace QueefCord.Content.Scenes
 {
     public class OrthoTestScene : Scene
     {
         private World World;
-
         private Player Player;
-        private Prop testProp;
-
-        public OrthoTestScene()
-        {
-            World = new World(new Point(75,75),new Point(3), new TileSetInfo("TileFrame", "ground", true));
-            Player = new Player();
-            Player.Transform.Position = new Vector2(100, 0);
-            AddEntity(UIScreenManager.Instance);
-        }
+        private WorldGeneration Generation;
 
         public override void OnActivate()
         {
             HealthManaUI.PlayerFocus = Player;
 
-            testProp = new Prop("Rock", "Default");
-            testProp.Transform.Position = new Vector2(100, 100);
-            testProp.Size = new Vector2(20, 20);
+            Generation = new WorldGeneration();
+            Generation.AddGenerationPass<CaveGeneration>();
+            World = new World(new Point(75, 75), new Point(30, 107), Generation, new TileSetInfo("TileFrame", "ground", true));
+            Player = new Player();
+            Player.Transform.Position = new Vector2(100, 0);
 
+            AddEntity(UIScreenManager.Instance);
             AddEntity(World);
             AddEntity(new DayNightCycle());
             AddEntity(Player);
-            AddEntity(testProp);
-            AddEntity(new ExampleEnemy());
             //AddEntity(new LineOfSight());
-
-            AddEntity(new ItemEntity<ExampleSword>(new Vector2(16), new Vector2(Rand.random.Next(0, 100), Rand.random.Next(0, 100)))); 
-            AddEntity(new ItemEntity<ExampleBow>(new Vector2(16), new Vector2(Rand.random.Next(0, 100), Rand.random.Next(0, 100))));
-            AddEntity(new ItemEntity<FruitAxe>(new Vector2(16), new Vector2(Rand.random.Next(0, 100), Rand.random.Next(0, 100))));
-            AddEntity(new ItemEntity<StoneHoe>(new Vector2(16), new Vector2(Rand.random.Next(0, 100), Rand.random.Next(0, 100))));
-            AddEntity(new ItemEntity<WateringCan>(new Vector2(16), new Vector2(Rand.random.Next(0, 100), Rand.random.Next(0, 100))));
 
             float GlobalScale = 1.6f;
 
             CrepsularRays Rays = new CrepsularRays();
-            ParalaxedSprite furthest = new ParalaxedSprite("Textures/Backgrounds/PlainsFurthest", "Default", new Vector2(0.8f, 0.95f), 3, Vector2.Zero, GlobalScale, 0.94f);
-            ParalaxedSprite far = new ParalaxedSprite("Textures/Backgrounds/PlainsFar", "Default", new Vector2(0.6f, 0.9f), 3, Vector2.Zero, GlobalScale, 0.93f);
-            ParalaxedSprite mid = new ParalaxedSprite("Textures/Backgrounds/PlainsMid", "Default", new Vector2(0.4f, 0.85f), 3, Vector2.Zero, GlobalScale, 0.92f);
-            ParalaxedSprite close = new ParalaxedSprite("Textures/Backgrounds/PlainsClose", "Default", new Vector2(0.2f, 0.8f), 3, Vector2.Zero, GlobalScale, 0.91f);
-            ParalaxedSprite closest = new ParalaxedSprite("Textures/Backgrounds/PlainsClosest", "Default", new Vector2(0.1f, 0.75f), 3, Vector2.Zero, GlobalScale, 0.9f);
-
+            ParalaxedSprite furthest = new ParalaxedSprite("Textures/Backgrounds/PlainsFurthest", "Default", new Vector2(0.95f, 0.95f), 3, Vector2.Zero, GlobalScale, 0.94f);
+            ParalaxedSprite far = new ParalaxedSprite("Textures/Backgrounds/PlainsFar", "Default", new Vector2(0.9f, 0.9f), 3, Vector2.Zero, GlobalScale, 0.93f);
+            ParalaxedSprite mid = new ParalaxedSprite("Textures/Backgrounds/PlainsMid", "Default", new Vector2(0.85f, 0.85f), 3, Vector2.Zero, GlobalScale, 0.92f);
+            ParalaxedSprite close = new ParalaxedSprite("Textures/Backgrounds/PlainsClose", "Default", new Vector2(0.8f, 0.8f), 3, Vector2.Zero, GlobalScale, 0.91f);
+            ParalaxedSprite closest = new ParalaxedSprite("Textures/Backgrounds/PlainsClosest", "Default", new Vector2(0.75f, 0.75f), 3, Vector2.Zero, GlobalScale, 0.9f);
 
             AddEntity(Rays);
 
